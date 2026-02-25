@@ -5,6 +5,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    platform: linux/amd64
     ports:
       - "8080:8080"
     volumes:
@@ -19,6 +20,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
+    platform: linux/amd64
     ports:
       - "4200:4200"
     volumes:
