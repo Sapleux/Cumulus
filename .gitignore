@@ -58,3 +58,5 @@ replay_pid*
 
 # Java target classes
 backend/target/
+*.vscode/*
+*app.db*
