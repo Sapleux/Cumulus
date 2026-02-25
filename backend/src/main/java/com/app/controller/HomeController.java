@@ -19,7 +19,7 @@ public class HomeController {
     @GetMapping("/protected")
     public ResponseEntity<?> protectedContent(Authentication authentication) {
         return ResponseEntity.ok(new MessageResponse(
-                "Bonjour " + authentication.getName() + " ! Ceci est un contenu protégé réservé aux utilisateurs connectés."
-        ));
+                "Bonjour " + authentication.getName()
+                        + " ! Ceci est un contenu protégé réservé aux utilisateurs connectés."));
     }
 }
