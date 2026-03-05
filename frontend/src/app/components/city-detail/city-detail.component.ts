@@ -8,6 +8,96 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
   standalone: true,
   imports: [CommonModule],
   template: `
+    <!-- SVG Icon Definitions -->
+    <svg style="display: none;">
+      <defs>
+        <!-- Sun Icon -->
+        <symbol id="icon-sun" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+          <path d="M12 2v4M12 18v4M22 12h-4M6 12H2M19.07 4.93l-2.83 2.83M7.76 16.24l-2.83 2.83M19.07 19.07l-2.83-2.83M7.76 7.76L4.93 4.93"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Moon Icon -->
+        <symbol id="icon-moon" viewBox="0 0 24 24">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+        </symbol>
+
+        <!-- Partly Cloudy Icon -->
+        <symbol id="icon-partly-cloudy" viewBox="0 0 24 24">
+          <path d="M13 16H6a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 16h-5z" fill="currentColor" opacity="0.9"/>
+          <circle cx="17" cy="7" r="2.5" fill="currentColor" opacity="0.6"/>
+          <path d="M17 3v1M21 7h-1M20.5 4.5l-.7.7M13.5 4.5l.7.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </symbol>
+
+        <!-- Cloud Icon -->
+        <symbol id="icon-cloud" viewBox="0 0 24 24">
+          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="currentColor"/>
+        </symbol>
+
+        <!-- Rain Icon -->
+        <symbol id="icon-rain" viewBox="0 0 24 24">
+          <path d="M16 13H8a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 13h-2z" fill="currentColor"/>
+          <path d="M8 16v3M12 15v4M16 16v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Drizzle Icon -->
+        <symbol id="icon-drizzle" viewBox="0 0 24 24">
+          <path d="M16 13H8a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 13h-2z" fill="currentColor"/>
+          <circle cx="8" cy="17" r="1" fill="currentColor"/>
+          <circle cx="12" cy="19" r="1" fill="currentColor"/>
+          <circle cx="16" cy="17" r="1" fill="currentColor"/>
+        </symbol>
+
+        <!-- Snow Icon -->
+        <symbol id="icon-snow" viewBox="0 0 24 24">
+          <path d="M16 13H8a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 13h-2z" fill="currentColor"/>
+          <path d="M8 16v4M8 18h-2M8 18h2M12 15v4M12 17h-2M12 17h2M16 16v4M16 18h-2M16 18h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Thunderstorm Icon -->
+        <symbol id="icon-thunderstorm" viewBox="0 0 24 24">
+          <path d="M16 13H8a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 13h-2z" fill="currentColor"/>
+          <path d="M13 13l-3 5h3l-1 4 4-6h-3l2-3z" fill="currentColor" opacity="0.8"/>
+        </symbol>
+
+        <!-- Fog Icon -->
+        <symbol id="icon-fog" viewBox="0 0 24 24">
+          <path d="M4 14h16M4 18h12M4 10h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        </symbol>
+
+        <!-- Sunrise Icon -->
+        <symbol id="icon-sunrise" viewBox="0 0 24 24">
+          <path d="M17 18a5 5 0 1 0-10 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 9v-7M8 13l-2-2M16 13l2-2M2 22h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Sunset Icon -->
+        <symbol id="icon-sunset" viewBox="0 0 24 24">
+          <path d="M17 18a5 5 0 1 0-10 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 2v7M8 13l-2-2M16 13l2-2M2 22h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Dusk Icon -->
+        <symbol id="icon-dusk" viewBox="0 0 24 24">
+          <path d="M17 18a5 5 0 1 0-10 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+          <path d="M2 22h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="13" r="3" fill="currentColor" opacity="0.4"/>
+        </symbol>
+
+        <!-- Temperature Icon -->
+        <symbol id="icon-temperature" viewBox="0 0 24 24">
+          <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" stroke="currentColor" stroke-width="2" fill="none"/>
+        </symbol>
+
+        <!-- Wind Icon -->
+        <symbol id="icon-wind" viewBox="0 0 24 24">
+          <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </symbol>
+      </defs>
+    </svg>
+
     <div class="city-detail-page" [style.background]="currentTheme.bgGradient">
       <!-- Weather Graphics Overlay -->
       <div class="weather-graphics">
@@ -60,7 +150,9 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
               </div>
 
               <div class="current-temp-section">
-                <div class="main-weather-icon" [style.font-size]="currentTheme.iconSize">{{ currentTheme.icon }}</div>
+                <svg class="main-weather-icon" viewBox="0 0 24 24">
+                  <use [attr.href]="'#' + getIconId(currentTheme.icon)"></use>
+                </svg>
                 <div class="temp-info">
                   <div class="temperature">{{ city.temperature }} C°</div>
                   <div class="weather-condition">{{ getWeatherConditionText() }}</div>
@@ -74,7 +166,9 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
                        (mouseenter)="onHourHover($event, hour)"
                        (mouseleave)="hoveredHour = null">
                     <div class="hour-time">{{ hour.time }}</div>
-                    <div class="hour-icon">{{ hour.icon }}</div>
+                    <svg class="hour-icon" viewBox="0 0 24 24">
+                      <use [attr.href]="'#' + getIconId(hour.icon)"></use>
+                    </svg>
                     <div class="hour-temp">{{ hour.temp }}°</div>
                   </div>
                 </div>
@@ -90,15 +184,21 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
                [style.background]="getTooltipBackground()"
                [style.border-color]="getTooltipBorderColor()">
             <div class="tooltip-row">
-              <span class="tooltip-icon">🌡️</span>
+              <svg class="tooltip-icon" viewBox="0 0 24 24">
+                <use href="#icon-temperature"></use>
+              </svg>
               <span class="tooltip-text">{{ hoveredHour.temp }} C°</span>
             </div>
             <div class="tooltip-row">
-              <span class="tooltip-icon">☀️</span>
+              <svg class="tooltip-icon" viewBox="0 0 24 24">
+                <use href="#icon-sun"></use>
+              </svg>
               <span class="tooltip-text">{{ hoveredHour.sunMinutes }} min</span>
             </div>
             <div class="tooltip-row">
-              <span class="tooltip-icon">💨</span>
+              <svg class="tooltip-icon" viewBox="0 0 24 24">
+                <use href="#icon-wind"></use>
+              </svg>
               <span class="tooltip-text">{{ hoveredHour.wind }} km/h</span>
             </div>
             <div class="tooltip-arrow" [style.border-top-color]="getTooltipBackground()"></div>
@@ -111,7 +211,9 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
                  (click)="selectDay(day)"
                  [class.selected]="selectedDay === day.name">
               <span class="day-name">{{ day.name }}</span>
-              <span class="day-icon">{{ day.icon }}</span>
+              <svg class="day-icon" viewBox="0 0 24 24">
+                <use [attr.href]="'#' + getIconId(day.icon)"></use>
+              </svg>
               <span class="day-temp-min">{{ day.tempMin }} C°</span>
               <span class="day-temp-max">{{ day.tempMax }} C°</span>
             </div>
@@ -696,8 +798,10 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
     }
 
     .main-weather-icon {
-      font-size: 10rem;
-      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+      width: 10rem;
+      height: 10rem;
+      color: rgba(255, 255, 255, 0.9);
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
     }
 
     .temp-info {
@@ -794,8 +898,10 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
     }
 
     .hour-icon {
-      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
       order: 2;
+      color: rgba(0, 0, 0, 0.7);
     }
 
     .hour-temp {
@@ -838,7 +944,9 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
     }
 
     .tooltip-icon {
-      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+      color: rgba(0, 0, 0, 0.6);
     }
 
     .tooltip-text {
@@ -901,8 +1009,10 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
     }
 
     .day-icon {
-      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
       text-align: center;
+      color: rgba(0, 0, 0, 0.7);
     }
 
     .day-temp-min, .day-temp-max {
@@ -1567,6 +1677,26 @@ export class CityDetailComponent implements OnInit {
 
   resetPrecipitationHover(): void {
     this.hoveredPrecipitation = null;
+  }
+
+  getIconId(iconText: string): string {
+    const iconMap: { [key: string]: string } = {
+      '☀️': 'icon-sun',
+      '🌙': 'icon-moon',
+      '⛅': 'icon-partly-cloudy',
+      '☁️': 'icon-cloud',
+      '🌧️': 'icon-rain',
+      '🌦️': 'icon-drizzle',
+      '❄️': 'icon-snow',
+      '⛈️': 'icon-thunderstorm',
+      '🌫️': 'icon-fog',
+      '🌅': 'icon-sunrise',
+      '🌇': 'icon-sunset',
+      '🌆': 'icon-dusk',
+      '🌃': 'icon-dusk',
+      '🌥️': 'icon-cloud'
+    };
+    return iconMap[iconText] || 'icon-sun';
   }
 
   generateHourlyForecast(minTemp: number, maxTemp: number, icon: string, avgSun: number, avgWind: number): any[] {

@@ -10,6 +10,85 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
+    <!-- SVG Icon Definitions -->
+    <svg style="display: none;">
+      <defs>
+        <!-- Sun Icon -->
+        <symbol id="icon-sun" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+          <path d="M12 2v4M12 18v4M22 12h-4M6 12H2M19.07 4.93l-2.83 2.83M7.76 16.24l-2.83 2.83M19.07 19.07l-2.83-2.83M7.76 7.76L4.93 4.93"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Partly Cloudy Icon -->
+        <symbol id="icon-partly-cloudy" viewBox="0 0 24 24">
+          <path d="M13 16H6a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 16h-5z" fill="currentColor" opacity="0.9"/>
+          <circle cx="17" cy="7" r="2.5" fill="currentColor" opacity="0.6"/>
+          <path d="M17 3v1M21 7h-1M20.5 4.5l-.7.7M13.5 4.5l.7.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        </symbol>
+
+        <!-- Cloud Icon -->
+        <symbol id="icon-cloud" viewBox="0 0 24 24">
+          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="currentColor"/>
+        </symbol>
+
+        <!-- Rain Icon -->
+        <symbol id="icon-rain" viewBox="0 0 24 24">
+          <path d="M16 13H8a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 13h-2z" fill="currentColor"/>
+          <path d="M8 16v3M12 15v4M16 16v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Drizzle Icon -->
+        <symbol id="icon-drizzle" viewBox="0 0 24 24">
+          <path d="M16 13H8a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 13h-2z" fill="currentColor"/>
+          <circle cx="8" cy="17" r="1" fill="currentColor"/>
+          <circle cx="12" cy="19" r="1" fill="currentColor"/>
+          <circle cx="16" cy="17" r="1" fill="currentColor"/>
+        </symbol>
+
+        <!-- Snow Icon -->
+        <symbol id="icon-snow" viewBox="0 0 24 24">
+          <path d="M16 13H8a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 13h-2z" fill="currentColor"/>
+          <path d="M8 16v4M8 18h-2M8 18h2M12 15v4M12 17h-2M12 17h2M16 16v4M16 18h-2M16 18h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Thunderstorm Icon -->
+        <symbol id="icon-thunderstorm" viewBox="0 0 24 24">
+          <path d="M16 13H8a4 4 0 1 1 0.5-7.95 5.5 5.5 0 0 1 10.9 1.35A3.5 3.5 0 0 1 18 13h-2z" fill="currentColor"/>
+          <path d="M13 13l-3 5h3l-1 4 4-6h-3l2-3z" fill="currentColor" opacity="0.8"/>
+        </symbol>
+
+        <!-- Fog Icon -->
+        <symbol id="icon-fog" viewBox="0 0 24 24">
+          <path d="M4 14h16M4 18h12M4 10h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        </symbol>
+
+        <!-- Droplet/Humidity Icon -->
+        <symbol id="icon-droplet" viewBox="0 0 24 24">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="currentColor"/>
+        </symbol>
+
+        <!-- Wind Icon -->
+        <symbol id="icon-wind" viewBox="0 0 24 24">
+          <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </symbol>
+
+        <!-- Eye/Visibility Icon -->
+        <symbol id="icon-eye" viewBox="0 0 24 24">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor"/>
+        </symbol>
+
+        <!-- Gauge/Pressure Icon -->
+        <symbol id="icon-gauge" viewBox="0 0 24 24">
+          <path d="M12 2a10 10 0 0 1 10 10c0 3.87-2.2 7.22-5.41 8.87" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M2 12A10 10 0 0 1 7.41 3.13" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+      </defs>
+    </svg>
+
     <!-- Favorite Cities Carousel -->
     <section class="carousel-section">
       <div class="container">
@@ -17,7 +96,10 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
         <div class="welcome-state" *ngIf="!authService.isLoggedIn()">
           <div class="welcome-content">
             <div class="hero-badge mb-4">
-              <span>☁️ Application Météo</span>
+              <svg class="badge-icon" viewBox="0 0 24 24">
+                <use href="#icon-cloud"></use>
+              </svg>
+              <span>Application Météo</span>
             </div>
             <h1 class="welcome-title">Bienvenue sur Cumulus</h1>
             <p class="welcome-subtitle">
@@ -76,29 +158,39 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
 
                     <div class="weather-main-display">
                       <div class="temperature-display">{{ city.temperature }}°</div>
-                      <div class="weather-icon-display">{{ city.icon }}</div>
+                      <svg class="weather-icon-display" viewBox="0 0 24 24">
+                        <use [attr.href]="'#' + getIconId(city.icon)"></use>
+                      </svg>
                     </div>
 
                     <div class="weather-condition-large">{{ city.condition }}</div>
 
                     <div class="weather-stats-grid">
                       <div class="stat-card">
-                        <span class="stat-icon">💧</span>
+                        <svg class="stat-icon" viewBox="0 0 24 24">
+                          <use href="#icon-droplet"></use>
+                        </svg>
                         <span class="stat-label">Humidité</span>
                         <span class="stat-value">{{ city.humidity }}%</span>
                       </div>
                       <div class="stat-card">
-                        <span class="stat-icon">💨</span>
+                        <svg class="stat-icon" viewBox="0 0 24 24">
+                          <use href="#icon-wind"></use>
+                        </svg>
                         <span class="stat-label">Vent</span>
                         <span class="stat-value">{{ city.wind }} km/h</span>
                       </div>
                       <div class="stat-card">
-                        <span class="stat-icon">👁️</span>
+                        <svg class="stat-icon" viewBox="0 0 24 24">
+                          <use href="#icon-eye"></use>
+                        </svg>
                         <span class="stat-label">Visibilité</span>
                         <span class="stat-value">{{ city.visibility }} km</span>
                       </div>
                       <div class="stat-card">
-                        <span class="stat-icon">🌡️</span>
+                        <svg class="stat-icon" viewBox="0 0 24 24">
+                          <use href="#icon-gauge"></use>
+                        </svg>
                         <span class="stat-label">Pression</span>
                         <span class="stat-value">{{ city.pressure }} hPa</span>
                       </div>
@@ -170,7 +262,9 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
     }
 
     .hero-badge {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
       padding: 0.5rem 1.2rem;
       background: linear-gradient(135deg, rgba(224,242,254,0.8), rgba(240,249,255,0.8));
       border: 1px solid rgba(14,165,233,0.2);
@@ -178,6 +272,12 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
       font-size: 0.875rem;
       color: var(--primary);
       font-weight: 500;
+    }
+
+    .badge-icon {
+      width: 1.125rem;
+      height: 1.125rem;
+      color: var(--primary);
     }
 
     .welcome-title {
@@ -311,8 +411,10 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
     }
 
     .weather-icon-display {
-      font-size: 6rem;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+      width: 6rem;
+      height: 6rem;
+      color: rgba(255, 255, 255, 0.95);
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
     }
 
     .weather-condition-large {
@@ -354,8 +456,10 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
     }
 
     .stat-card .stat-icon {
-      font-size: 2rem;
+      width: 1.75rem;
+      height: 1.75rem;
       margin-bottom: 0.25rem;
+      color: rgba(255, 255, 255, 0.9);
     }
 
     .stat-card .stat-label {
@@ -516,7 +620,8 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
       }
 
       .weather-icon-display {
-        font-size: 4rem;
+        width: 4rem;
+        height: 4rem;
       }
 
       .weather-stats-grid {
@@ -661,5 +766,20 @@ export class HomeComponent implements OnInit {
     event.stopPropagation();
     // Logic to toggle favorite will be added later
     console.log('Toggle favorite for', city.name);
+  }
+
+  getIconId(iconText: string): string {
+    const iconMap: { [key: string]: string } = {
+      '☀️': 'icon-sun',
+      '⛅': 'icon-partly-cloudy',
+      '☁️': 'icon-cloud',
+      '🌧️': 'icon-rain',
+      '🌦️': 'icon-drizzle',
+      '❄️': 'icon-snow',
+      '⛈️': 'icon-thunderstorm',
+      '🌫️': 'icon-fog',
+      '🌥️': 'icon-cloud'
+    };
+    return iconMap[iconText] || 'icon-sun';
   }
 }
