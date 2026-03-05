@@ -9,97 +9,120 @@ import { ApiService } from '../../services/api.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <!-- Hero Section -->
-    <section class="hero-section">
+    <!-- Favorite Cities Carousel -->
+    <section class="carousel-section">
       <div class="container">
-        <div class="row align-items-center min-vh-75">
-          <div class="col-lg-7">
-            <div class="hero-badge mb-3">
-              <span>🚀 Application Full Stack</span>
+        <!-- Not logged in state -->
+        <div class="welcome-state" *ngIf="!authService.isLoggedIn()">
+          <div class="welcome-content">
+            <div class="hero-badge mb-4">
+              <span>☁️ Application Météo</span>
             </div>
-            <h1 class="hero-title">
-              Spring Boot + Angular
-              <span class="gradient-text">+ JWT Auth</span>
-            </h1>
-            <p class="hero-subtitle">
-              Une application moderne avec authentification JWT sécurisée,
-              base de données SQLite et déploiement Docker.
+            <h1 class="welcome-title">Bienvenue sur Cumulus</h1>
+            <p class="welcome-subtitle">
+              Suivez la météo de vos villes préférées avec des prévisions précises en temps réel
             </p>
-            <div class="d-flex gap-3 mt-4">
-              <a *ngIf="!authService.isLoggedIn()" routerLink="/register" class="btn btn-primary btn-lg px-4">
-                Commencer
+            <div class="d-flex gap-3 justify-content-center mt-4">
+              <a routerLink="/register" class="btn btn-primary btn-lg px-4">
+                Créer un compte
               </a>
-              <a *ngIf="!authService.isLoggedIn()" routerLink="/login" class="btn btn-outline-light btn-lg px-4">
+              <a routerLink="/login" class="btn btn-outline-primary btn-lg px-4">
                 Se connecter
               </a>
-              <button *ngIf="authService.isLoggedIn()" class="btn btn-primary btn-lg px-4" (click)="loadProtected()">
-                Voir contenu protégé
-              </button>
-            </div>
-          </div>
-          <div class="col-lg-5 d-none d-lg-block">
-            <div class="hero-visual">
-              <div class="code-block">
-                <div class="code-header">
-                  <span class="dot red"></span>
-                  <span class="dot yellow"></span>
-                  <span class="dot green"></span>
-                </div>
-                <pre><code><span class="kw">POST</span> /api/auth/login
-&#123;
-  <span class="str">"username"</span>: <span class="str">"demo"</span>,
-  <span class="str">"password"</span>: <span class="str">"••••••"</span>
-&#125;
-
-<span class="cmt">// Response</span>
-&#123;
-  <span class="str">"token"</span>: <span class="str">"eyJhbG..."</span>,
-  <span class="str">"type"</span>: <span class="str">"Bearer"</span>
-&#125;</code></pre>
-              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- Messages Section -->
-    <section class="py-5" *ngIf="publicMessage || protectedMessage">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-8">
-            <div class="card p-4" *ngIf="publicMessage">
-              <div class="d-flex align-items-center gap-3">
-                <span class="badge-icon success">✓</span>
-                <div>
-                  <h6 class="mb-1">Contenu Public</h6>
-                  <p class="mb-0 text-secondary">{{ publicMessage }}</p>
-                </div>
-              </div>
+        <!-- Logged in state with carousel -->
+        <div *ngIf="authService.isLoggedIn()">
+          <div class="carousel-header">
+            <div>
+              <h2 class="fw-bold mb-1">Mes villes favorites</h2>
+              <p class="text-secondary mb-0">Suivez la météo de vos villes préférées en un coup d'œil</p>
             </div>
-            <div class="card p-4 mt-3" *ngIf="protectedMessage">
-              <div class="d-flex align-items-center gap-3">
-                <span class="badge-icon info">🔒</span>
-                <div>
-                  <h6 class="mb-1">Contenu Protégé</h6>
-                  <p class="mb-0 text-secondary">{{ protectedMessage }}</p>
-                </div>
-              </div>
-            </div>
+            <button class="btn btn-primary">
+              <span class="me-2">+</span> Ajouter une ville
+            </button>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Features Section -->
-    <section class="py-5">
-      <div class="container">
-        <div class="row g-4">
-          <div class="col-md-4" *ngFor="let feature of features">
-            <div class="card p-4 h-100 feature-card">
-              <div class="feature-icon mb-3">{{ feature.icon }}</div>
-              <h5>{{ feature.title }}</h5>
-              <p class="text-secondary mb-0">{{ feature.description }}</p>
+          <!-- Empty State -->
+          <div class="empty-state" *ngIf="favoriteCities.length === 0">
+            <div class="empty-icon">🌍</div>
+            <h5>Aucune ville favorite</h5>
+            <p class="text-secondary">Ajoutez des villes pour suivre leur météo en temps réel</p>
+            <button class="btn btn-primary mt-3">Ajouter ma première ville</button>
+          </div>
+
+          <!-- Carousel -->
+          <div class="carousel-container" *ngIf="favoriteCities.length > 0">
+            <button class="carousel-btn prev" (click)="previousSlide()" [disabled]="currentSlide === 0">
+              <span>‹</span>
+            </button>
+
+            <div class="carousel-wrapper">
+              <div class="carousel-track" [style.transform]="'translateX(-' + currentSlide * 100 + '%)'">
+                <div class="carousel-slide" *ngFor="let city of favoriteCities">
+                  <div class="city-card-large">
+                    <div class="city-header">
+                      <div>
+                        <h3 class="city-name">{{ city.name }}</h3>
+                        <p class="city-country">{{ city.country }}</p>
+                      </div>
+                      <button class="btn-favorite active">
+                        <span>⭐</span>
+                      </button>
+                    </div>
+
+                    <div class="weather-main-display">
+                      <div class="temperature-display">{{ city.temperature }}°</div>
+                      <div class="weather-icon-display">{{ city.icon }}</div>
+                    </div>
+
+                    <div class="weather-condition-large">{{ city.condition }}</div>
+
+                    <div class="weather-stats-grid">
+                      <div class="stat-card">
+                        <span class="stat-icon">💧</span>
+                        <span class="stat-label">Humidité</span>
+                        <span class="stat-value">{{ city.humidity }}%</span>
+                      </div>
+                      <div class="stat-card">
+                        <span class="stat-icon">💨</span>
+                        <span class="stat-label">Vent</span>
+                        <span class="stat-value">{{ city.wind }} km/h</span>
+                      </div>
+                      <div class="stat-card">
+                        <span class="stat-icon">👁️</span>
+                        <span class="stat-label">Visibilité</span>
+                        <span class="stat-value">{{ city.visibility }} km</span>
+                      </div>
+                      <div class="stat-card">
+                        <span class="stat-icon">🌡️</span>
+                        <span class="stat-label">Pression</span>
+                        <span class="stat-value">{{ city.pressure }} hPa</span>
+                      </div>
+                    </div>
+
+                    <div class="city-footer-large">
+                      <span class="update-time">Mis à jour il y a {{ city.lastUpdate }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button class="carousel-btn next" (click)="nextSlide()" [disabled]="currentSlide === favoriteCities.length - 1">
+              <span>›</span>
+            </button>
+
+            <!-- Carousel Indicators -->
+            <div class="carousel-indicators">
+              <button
+                *ngFor="let city of favoriteCities; let i = index"
+                class="indicator"
+                [class.active]="i === currentSlide"
+                (click)="goToSlide(i)"
+              ></button>
             </div>
           </div>
         </div>
@@ -107,142 +130,470 @@ import { ApiService } from '../../services/api.service';
     </section>
   `,
   styles: [`
-    .min-vh-75 { min-height: 75vh; }
-
-    .hero-section {
-      padding: 4rem 0 2rem;
+    /* Carousel Section */
+    .carousel-section {
+      min-height: calc(100vh - 60px);
+      display: flex;
+      align-items: center;
+      padding: 3rem 0;
       position: relative;
-      overflow: hidden;
     }
 
-    .hero-section::before {
+    .carousel-section::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -20%;
-      width: 60%;
-      height: 200%;
-      background: radial-gradient(ellipse, rgba(79,70,229,0.12) 0%, transparent 60%);
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, rgba(14,165,233,0.05) 0%, transparent 70%);
       pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Welcome State */
+    .welcome-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .welcome-content {
+      max-width: 600px;
+      margin: 0 auto;
     }
 
     .hero-badge {
       display: inline-block;
-      padding: 0.4rem 1rem;
-      background: rgba(79,70,229,0.15);
-      border: 1px solid rgba(79,70,229,0.3);
+      padding: 0.5rem 1.2rem;
+      background: linear-gradient(135deg, rgba(224,242,254,0.8), rgba(240,249,255,0.8));
+      border: 1px solid rgba(14,165,233,0.2);
       border-radius: 50px;
-      font-size: 0.85rem;
-      color: var(--primary-light);
+      font-size: 0.875rem;
+      color: var(--primary);
+      font-weight: 500;
     }
 
-    .hero-title {
-      font-size: 3.2rem;
+    .welcome-title {
+      font-size: 3rem;
       font-weight: 700;
-      line-height: 1.15;
       margin-bottom: 1rem;
+      color: var(--text-primary);
     }
 
-    .gradient-text {
-      background: linear-gradient(135deg, var(--primary-light), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero-subtitle {
-      font-size: 1.15rem;
+    .welcome-subtitle {
+      font-size: 1.125rem;
       color: var(--text-secondary);
-      max-width: 500px;
       line-height: 1.7;
+      margin-bottom: 2rem;
     }
 
-    .hero-visual {
-      perspective: 1000px;
-    }
-
-    .code-block {
-      background: #1a1a2e;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      overflow: hidden;
-      transform: rotateY(-5deg) rotateX(2deg);
-      box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-    }
-
-    .code-header {
-      background: rgba(255,255,255,0.05);
-      padding: 0.75rem 1rem;
+    /* Carousel Header */
+    .carousel-header {
       display: flex;
-      gap: 6px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
     }
 
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-    .dot.red { background: #ff5f57; }
-    .dot.yellow { background: #febc2e; }
-    .dot.green { background: #28c840; }
-
-    .code-block pre {
-      padding: 1.25rem;
-      margin: 0;
-      font-size: 0.85rem;
-      color: #e2e8f0;
-    }
-
-    .code-block .kw { color: #c084fc; }
-    .code-block .str { color: #34d399; }
-    .code-block .cmt { color: #64748b; }
-
-    .feature-card {
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .feature-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.3);
-    }
-
-    .feature-icon {
+    .carousel-header h2 {
       font-size: 2rem;
+      color: var(--text-primary);
     }
 
-    .badge-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
+    /* Carousel Container */
+    .carousel-container {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .carousel-wrapper {
+      overflow: hidden;
+      border-radius: 28px;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      flex-shrink: 0;
+    }
+
+    /* City Card Large */
+    .city-card-large {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-radius: 24px;
+      padding: 3rem;
+      color: white;
+      box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3), 0 8px 16px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .city-card-large::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .city-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .city-name {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .city-country {
+      font-size: 1.125rem;
+      opacity: 0.9;
+    }
+
+    .btn-favorite {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 0.75rem;
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-favorite:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+
+    .btn-favorite.active {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Weather Main Display */
+    .weather-main-display {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin: 3rem 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .temperature-display {
+      font-size: 7rem;
+      font-weight: 200;
+      line-height: 1;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .weather-icon-display {
+      font-size: 6rem;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+    }
+
+    .weather-condition-large {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 3rem;
+      opacity: 0.95;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Weather Stats Grid */
+    .weather-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .stat-card .stat-icon {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    .stat-card .stat-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .city-footer-large {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    .update-time {
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
+
+    /* Carousel Navigation Buttons */
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
-      flex-shrink: 0;
+      cursor: pointer;
+      font-size: 2rem;
+      color: var(--primary);
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s ease;
+      z-index: 10;
     }
-    .badge-icon.success { background: rgba(16,185,129,0.15); }
-    .badge-icon.info { background: rgba(6,182,212,0.15); }
 
-    .text-secondary { color: var(--text-secondary) !important; }
+    .carousel-btn:hover:not(:disabled) {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .carousel-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .carousel-btn.prev {
+      left: -28px;
+    }
+
+    .carousel-btn.next {
+      right: -28px;
+    }
+
+    .carousel-btn span {
+      display: block;
+      line-height: 0;
+    }
+
+    /* Carousel Indicators */
+    .carousel-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    .indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 0;
+    }
+
+    .indicator.active {
+      background: var(--primary);
+      transform: scale(1.2);
+    }
+
+    .indicator:hover:not(.active) {
+      background: rgba(59, 130, 246, 0.3);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border: 2px dashed var(--border-light);
+      border-radius: 24px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .empty-icon {
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h5 {
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .empty-state p {
+      margin-bottom: 0;
+      font-size: 1.125rem;
+    }
+
+    .text-secondary {
+      color: var(--text-secondary) !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .carousel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+      }
+
+      .carousel-btn.prev {
+        left: -20px;
+      }
+
+      .carousel-btn.next {
+        right: -20px;
+      }
+
+      .city-card-large {
+        padding: 2rem;
+      }
+
+      .city-name {
+        font-size: 2rem;
+      }
+
+      .temperature-display {
+        font-size: 5rem;
+      }
+
+      .weather-icon-display {
+        font-size: 4rem;
+      }
+
+      .weather-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      .carousel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
   `]
 })
 export class HomeComponent implements OnInit {
-  publicMessage = '';
-  protectedMessage = '';
+  currentSlide = 0;
 
-  features = [
+  favoriteCities = [
     {
-      icon: '🔐',
-      title: 'Authentification JWT',
-      description: 'Système complet d\'inscription et connexion avec tokens JWT sécurisés.'
+      name: 'Paris',
+      country: 'France',
+      temperature: 22,
+      icon: '⛅',
+      condition: 'Partiellement nuageux',
+      humidity: 65,
+      wind: 12,
+      visibility: 10,
+      pressure: 1015,
+      lastUpdate: '5 min'
     },
     {
-      icon: '🗄️',
-      title: 'SQLite Database',
-      description: 'Base de données légère et performante, parfaite pour le développement et les petits projets.'
+      name: 'Lyon',
+      country: 'France',
+      temperature: 24,
+      icon: '☀️',
+      condition: 'Ensoleillé',
+      humidity: 52,
+      wind: 8,
+      visibility: 15,
+      pressure: 1018,
+      lastUpdate: '10 min'
     },
     {
-      icon: '🐳',
-      title: 'Docker Ready',
-      description: 'Déploiement simplifié avec Docker Compose. Un seul commande pour tout lancer.'
+      name: 'Marseille',
+      country: 'France',
+      temperature: 26,
+      icon: '🌤️',
+      condition: 'Légèrement nuageux',
+      humidity: 58,
+      wind: 15,
+      visibility: 12,
+      pressure: 1012,
+      lastUpdate: '3 min'
+    },
+    {
+      name: 'Toulouse',
+      country: 'France',
+      temperature: 23,
+      icon: '🌥️',
+      condition: 'Nuageux',
+      humidity: 70,
+      wind: 10,
+      visibility: 8,
+      pressure: 1013,
+      lastUpdate: '7 min'
+    },
+    {
+      name: 'Nice',
+      country: 'France',
+      temperature: 25,
+      icon: '☀️',
+      condition: 'Beau temps',
+      humidity: 55,
+      wind: 14,
+      visibility: 15,
+      pressure: 1016,
+      lastUpdate: '2 min'
     }
   ];
 
@@ -251,17 +602,21 @@ export class HomeComponent implements OnInit {
     private apiService: ApiService
   ) {}
 
-  ngOnInit(): void {
-    this.apiService.getPublicContent().subscribe({
-      next: (res) => this.publicMessage = res.message,
-      error: () => {}
-    });
+  ngOnInit(): void {}
+
+  nextSlide(): void {
+    if (this.currentSlide < this.favoriteCities.length - 1) {
+      this.currentSlide++;
+    }
   }
 
-  loadProtected(): void {
-    this.apiService.getProtectedContent().subscribe({
-      next: (res) => this.protectedMessage = res.message,
-      error: () => this.protectedMessage = 'Erreur: vous devez être connecté.'
-    });
+  previousSlide(): void {
+    if (this.currentSlide > 0) {
+      this.currentSlide--;
+    }
+  }
+
+  goToSlide(index: number): void {
+    this.currentSlide = index;
   }
 }
