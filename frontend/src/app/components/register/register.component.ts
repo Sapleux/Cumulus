@@ -15,8 +15,9 @@ import { AuthService } from '../../services/auth.service';
           <div class="col-md-5">
             <div class="card p-4 p-md-5">
               <div class="text-center mb-4">
-                <h2 class="fw-bold">Inscription</h2>
-                <p class="text-secondary">Créez votre compte gratuitement</p>
+                <div class="weather-icon-large mb-3">☁️</div>
+                <h2 class="fw-bold">Rejoignez Cumulus</h2>
+                <p class="text-secondary">Créez votre compte et suivez la météo partout dans le monde</p>
               </div>
 
               <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
@@ -92,6 +93,22 @@ import { AuthService } from '../../services/auth.service';
       display: flex;
       align-items: center;
       padding: 2rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      right: -10%;
+      width: 40%;
+      height: 140%;
+      background: radial-gradient(ellipse, rgba(14,165,233,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .weather-icon-large {
+      font-size: 3.5rem;
+      opacity: 0.9;
     }
     .text-secondary { color: var(--text-secondary) !important; }
   `]
