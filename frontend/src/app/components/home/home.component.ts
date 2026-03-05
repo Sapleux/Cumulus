@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { WeatherInterpretationCode } from '../../models/weather.model';
 
 @Component({
   selector: 'app-home',
@@ -62,13 +63,13 @@ import { ApiService } from '../../services/api.service';
             <div class="carousel-wrapper">
               <div class="carousel-track" [style.transform]="'translateX(-' + currentSlide * 100 + '%)'">
                 <div class="carousel-slide" *ngFor="let city of favoriteCities">
-                  <div class="city-card-large">
+                  <div class="city-card-large" (click)="goToCityDetail(city.name)" style="cursor: pointer;">
                     <div class="city-header">
                       <div>
                         <h3 class="city-name">{{ city.name }}</h3>
                         <p class="city-country">{{ city.country }}</p>
                       </div>
-                      <button class="btn-favorite active">
+                      <button class="btn-favorite active" (click)="toggleFavorite($event, city)">
                         <span>⭐</span>
                       </button>
                     </div>
@@ -536,70 +537,102 @@ export class HomeComponent implements OnInit {
 
   favoriteCities = [
     {
+      name: 'Nice',
+      country: 'France',
+      temperature: 28,
+      icon: '☀️',
+      condition: 'Ciel dégagé',
+      humidity: 45,
+      wind: 8,
+      visibility: 20,
+      pressure: 1020,
+      lastUpdate: '2 min',
+      weatherCode: WeatherInterpretationCode.ClearSky
+    },
+    {
       name: 'Paris',
       country: 'France',
       temperature: 22,
       icon: '⛅',
       condition: 'Partiellement nuageux',
-      humidity: 65,
+      humidity: 60,
       wind: 12,
-      visibility: 10,
-      pressure: 1015,
-      lastUpdate: '5 min'
-    },
-    {
-      name: 'Lyon',
-      country: 'France',
-      temperature: 24,
-      icon: '☀️',
-      condition: 'Ensoleillé',
-      humidity: 52,
-      wind: 8,
       visibility: 15,
-      pressure: 1018,
-      lastUpdate: '10 min'
+      pressure: 1015,
+      lastUpdate: '5 min',
+      weatherCode: WeatherInterpretationCode.MainlyClear
     },
     {
-      name: 'Marseille',
-      country: 'France',
-      temperature: 26,
-      icon: '🌤️',
-      condition: 'Légèrement nuageux',
-      humidity: 58,
-      wind: 15,
-      visibility: 12,
+      name: 'Londres',
+      country: 'Royaume-Uni',
+      temperature: 15,
+      icon: '🌫️',
+      condition: 'Brouillard épais',
+      humidity: 90,
+      wind: 5,
+      visibility: 2,
       pressure: 1012,
-      lastUpdate: '3 min'
+      lastUpdate: '8 min',
+      weatherCode: WeatherInterpretationCode.Fog
+    },
+    {
+      name: 'Brest',
+      country: 'France',
+      temperature: 16,
+      icon: '🌦️',
+      condition: 'Bruine légère',
+      humidity: 80,
+      wind: 18,
+      visibility: 8,
+      pressure: 1008,
+      lastUpdate: '4 min',
+      weatherCode: WeatherInterpretationCode.Drizzle
+    },
+    {
+      name: 'Lille',
+      country: 'France',
+      temperature: 12,
+      icon: '🌧️',
+      condition: 'Pluie modérée',
+      humidity: 85,
+      wind: 22,
+      visibility: 6,
+      pressure: 1005,
+      lastUpdate: '3 min',
+      weatherCode: WeatherInterpretationCode.Rain
+    },
+    {
+      name: 'Chamonix',
+      country: 'France',
+      temperature: -2,
+      icon: '❄️',
+      condition: 'Chutes de neige',
+      humidity: 75,
+      wind: 15,
+      visibility: 4,
+      pressure: 1010,
+      lastUpdate: '6 min',
+      weatherCode: WeatherInterpretationCode.Snow
     },
     {
       name: 'Toulouse',
       country: 'France',
-      temperature: 23,
-      icon: '🌥️',
-      condition: 'Nuageux',
-      humidity: 70,
-      wind: 10,
-      visibility: 8,
-      pressure: 1013,
-      lastUpdate: '7 min'
-    },
-    {
-      name: 'Nice',
-      country: 'France',
-      temperature: 25,
-      icon: '☀️',
-      condition: 'Beau temps',
-      humidity: 55,
-      wind: 14,
-      visibility: 15,
-      pressure: 1016,
-      lastUpdate: '2 min'
+      temperature: 18,
+      icon: '⛈️',
+      condition: 'Orage violent',
+      humidity: 88,
+      wind: 35,
+      visibility: 5,
+      pressure: 998,
+      lastUpdate: '1 min',
+      weatherCode: WeatherInterpretationCode.Thunderstorm
     }
   ];
 
   constructor(
     public authService: AuthService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {}
@@ -618,5 +651,15 @@ export class HomeComponent implements OnInit {
 
   goToSlide(index: number): void {
     this.currentSlide = index;
+  }
+
+  goToCityDetail(cityName: string): void {
+    this.router.navigate(['/city', cityName]);
+  }
+
+  toggleFavorite(event: Event, city: any): void {
+    event.stopPropagation();
+    // Logic to toggle favorite will be added later
+    console.log('Toggle favorite for', city.name);
   }
 }
