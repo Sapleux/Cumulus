@@ -12,13 +12,13 @@ import FullScreen from 'ol/control/FullScreen';
 import olms from 'ol-mapbox-style';
 import { transform } from 'ol/proj';
 import { MapService } from '../../services/map.service';
+import { environment } from '../../../environments/environment';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
-import { environment } from '../../../environments/environment'
 
 @Component({
   selector: 'app-map',
@@ -36,8 +36,13 @@ export class MapComponent implements AfterViewInit {
   suggestions: any[] = [];
   loadingLocation = false;
   markerSource = new VectorSource();
-
   private mapReady = false;
+
+  // Données affichées dans le bloc inférieur
+  selectedCity: string | null = null;
+  selectedLat: number | null = null;
+  selectedLon: number | null = null;
+  isLoadingReverse = false;
 
   constructor(private mapService: MapService) {}
 
@@ -65,6 +70,38 @@ export class MapComponent implements AfterViewInit {
       zIndex: 999,
     });
     this.map.addLayer(markerLayer);
+
+    // Click on the map
+    this.map.on('click', (event) => {
+      const coords3857 = event.coordinate;
+      const coords4326 = transform(coords3857, 'EPSG:3857', 'EPSG:4326');
+      const lon = coords4326[0];
+      const lat = coords4326[1];
+
+      this.addMarker(coords3857);
+      this.selectedLat = parseFloat(lat.toFixed(5));
+      this.selectedLon = parseFloat(lon.toFixed(5));
+      this.selectedCity = null;
+      this.isLoadingReverse = true;
+
+      // Find the city pointed
+      this.mapService.reverseGeocode(lat, lon).subscribe({
+        next: (data) => {
+          this.isLoadingReverse = false;
+          if (data.features && data.features.length > 0) {
+            const place = data.features[0];
+            this.selectedCity = place.properties.formatted;
+            this.city = place.properties.city || place.properties.formatted;
+          } else {
+            this.city = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+          }
+        },
+        error: () => {
+          this.isLoadingReverse = false;
+          this.city = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+        }
+      });
+    });
 
     this.map.once('rendercomplete', () => {
       this.mapReady = true;
@@ -99,32 +136,29 @@ export class MapComponent implements AfterViewInit {
     const lat = place.geometry.coordinates[1];
     const coords = transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
 
-    this.city = place.properties.formatted;
+    this.city = place.properties.city || place.properties.formatted;
     this.suggestions = [];
+
+    this.selectedCity = place.properties.formatted;
+    this.selectedLat = parseFloat(lat.toFixed(5));
+    this.selectedLon = parseFloat(lon.toFixed(5));
 
     if (!this.mapReady || !this.map) {
       setTimeout(() => this.centerMap(coords), 300);
       return;
     }
-
     this.centerMap(coords);
   }
 
   private centerMap(coords: number[]) {
     this.map.getView().setCenter(coords);
-    this.map.getView().animate({
-      center: coords,
-      zoom: 12,
-      duration: 800,
-    });
+    this.map.getView().animate({ center: coords, zoom: 12, duration: 800 });
     this.addMarker(coords);
   }
 
   addMarker(coords: number[]) {
     this.markerSource.clear();
-    const marker = new Feature({
-      geometry: new Point(coords),
-    });
+    const marker = new Feature({ geometry: new Point(coords) });
     marker.setStyle(
       new Style({
         image: new Icon({
@@ -140,23 +174,41 @@ export class MapComponent implements AfterViewInit {
     this.loadingLocation = true;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const coords = transform(
-          [pos.coords.longitude, pos.coords.latitude],
-          'EPSG:4326',
-          'EPSG:3857'
-        );
-        this.map.getView().animate({
-          center: coords,
-          zoom: 13,
-          duration: 1000,
-        });
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const coords = transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
+
+        this.map.getView().animate({ center: coords, zoom: 13, duration: 1000 });
         this.addMarker(coords);
         this.loadingLocation = false;
+
+        this.selectedLat = parseFloat(lat.toFixed(5));
+        this.selectedLon = parseFloat(lon.toFixed(5));
+
+        this.isLoadingReverse = true;
+        this.mapService.reverseGeocode(lat, lon).subscribe({
+          next: (data) => {
+            this.isLoadingReverse = false;
+            if (data.features && data.features.length > 0) {
+              this.selectedCity = data.features[0].properties.formatted;
+              this.city = data.features[0].properties.city || this.selectedCity!;
+            }
+          },
+          error: () => { this.isLoadingReverse = false; }
+        });
       },
       () => {
         this.loadingLocation = false;
         alert("Impossible d'obtenir votre localisation");
       }
     );
+  }
+
+  clearSelection() {
+    this.city = '';
+    this.selectedCity = null;
+    this.selectedLat = null;
+    this.selectedLon = null;
+    this.markerSource.clear();
   }
 }

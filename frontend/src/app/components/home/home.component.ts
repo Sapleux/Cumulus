@@ -131,6 +131,11 @@ import { MapComponent } from '../map/map.component';
     </section>
     <!-- Map -->
     <section class="map-section">
+      <!-- Titre -->
+      <div class="map-title">
+        <h2>🌤️ Rechercher la météo selon votre ville</h2>
+        <p>Recherchez une ville ou cliquez directement sur la carte</p>
+      </div>
       <div class="container">
         <div class="map-wrapper">
           <app-map></app-map>
