@@ -1,0 +1,40 @@
+<div class="map-search">
+
+  <div class="search-box">
+
+    <input
+      type="text"
+      placeholder="Rechercher une ville..."
+      [(ngModel)]="city"
+      (input)="autocomplete()"
+      (keyup.enter)="searchCity()"
+    />
+
+    <button class="search-btn" (click)="searchCity()">
+      Rechercher
+    </button>
+
+    <button class="locate-btn" (click)="locateUser()">
+      Me localiser
+    </button>
+
+    <div class="loader" *ngIf="loadingLocation">
+      Localisation en cours...
+    </div>
+
+    <ul *ngIf="suggestions.length" class="suggestions">
+
+      <li
+        *ngFor="let place of suggestions"
+        (click)="selectCity(place)"
+      >
+        {{ place.properties.formatted }}
+      </li>
+
+    </ul>
+
+  </div>
+
+</div>
+
+<div #map class="map-container"></div>

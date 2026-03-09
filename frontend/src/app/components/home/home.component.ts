@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { MapComponent } from '../map/map.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, MapComponent],
   template: `
     <!-- Favorite Cities Carousel -->
     <section class="carousel-section">
@@ -125,6 +126,14 @@ import { ApiService } from '../../services/api.service';
               ></button>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+    <!-- Map -->
+    <section class="map-section">
+      <div class="container">
+        <div class="map-wrapper">
+          <app-map></app-map>
         </div>
       </div>
     </section>
