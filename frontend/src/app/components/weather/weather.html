@@ -2,9 +2,24 @@
 <p>Weather data will be displayed here.</p>
 <p>Wic</p>
 <p>Summary of the day</p>
-
+<p>Today: {{ today | date }}</p>
 <pre>{{ wic }}</pre>
 <p>Over of the timeline</p>
 <pre>{{ wicOver | json }}</pre>
 <p>Summary of the next days</p>
 <pre>{{ nextDaySummary | json}}</pre>
+<p>Charts of the day</p>
+<p>Sunrise: {{ dayChart.sunRise | date:'shortTime' }}</p>
+<p>Sunset: {{ dayChart.sunSet | date:'shortTime' }}</p>
+<p>UV Index</p>
+<ul>
+  <li *ngFor="let uv of dayChart.UVs">{{ uv }}</li>
+</ul>
+<p>Wind Speeds</p>
+<ul>
+  <li *ngFor="let windSpeed of dayChart.windSpeeds">{{ windSpeed }}</li>
+</ul>
+<p>Precipitations</p>
+<ul>
+  <li *ngFor="let precipitation of dayChart.precipitations">{{ precipitation }}</li>
+</ul>

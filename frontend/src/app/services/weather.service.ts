@@ -51,7 +51,7 @@ export class WeatherService {
    * @param endDate the end date of the time range for which to retrieve the weather data
    * @returns an Observable that emits an array of WeatherIntrepretationCode values representing the weather conditions for each hour of the day
    */
-  public getWicTimeline(latitude: Number, longitude: Number, startDate: Date, endDate: Date): Observable<WeatherIntrepretationCode[]> {
+  public getWICTimeline(latitude: Number, longitude: Number, startDate: Date, endDate: Date): Observable<WeatherIntrepretationCode[]> {
     return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&hourly=weather_code&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`).pipe(
       map((data: any) => {
         const wic: WeatherIntrepretationCode[] = [];
@@ -64,8 +64,8 @@ export class WeatherService {
     );
   }
 
-  public getWICTimelineOver(latitude: Number, longitude: Number): Observable<WICTimelineOver[]> {
-    return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,sunshine_duration,wind_speed_10m&forecast_days=1`).pipe(
+  public getWICTimelineOver(latitude: Number, longitude: Number, day: Date): Observable<WICTimelineOver[]> {
+    return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,sunshine_duration,wind_speed_10m&start_date=${day.toISOString().split('T')[0]}&end_date=${day.toISOString().split('T')[0]}`).pipe(
       map((data: any) => {
         const timeline: WICTimelineOver[] = [];
         const temperatures = data.hourly.temperature_2m;
@@ -89,7 +89,7 @@ export class WeatherService {
    * @param longitude the longitude of the location for which to retrieve the weather data
    * @returns an Observable that emits an array of DaySummary objects representing the weather conditions for each day of the next week.
    */
-  public getSummaryOfNextDays(latitude: Number, longitude: Number, ): Observable<DaySummary[]> {
+  public getSummaryOfNextDays(latitude: Number, longitude: Number): Observable<DaySummary[]> {
     return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min,temperature_2m_max,weather_code&forecast_days=7`).pipe(
       map((data: any) => {
         const dailyData = data.daily;
@@ -102,6 +102,22 @@ export class WeatherService {
           });
         }
         return summaries;
+      })
+    );
+  }
+
+  public getDayCharts(latitude: Number, longitude: Number, day: Date): Observable<DayCharts> {
+    return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&daily=sunrise,sunset&hourly=uv_index,wind_speed_10m,precipitation&start_date=${day.toISOString().split('T')[0]}&end_date=${day.toISOString().split('T')[0]}`).pipe(
+      map((data: any) => {
+        const daily = data.daily;
+        const hourly = data.hourly;
+        return {
+          sunRise: new Date(daily.sunrise[0]),
+          sunSet: new Date(daily.sunset[0]),
+          UVs: hourly.uv_index,
+          windSpeeds: hourly.wind_speed_10m,
+          precipitations: hourly.precipitation
+        };
       })
     );
   }
