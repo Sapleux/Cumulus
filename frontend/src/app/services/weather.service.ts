@@ -25,6 +25,14 @@ export interface WICTimelineOver {
   windSpeed: number;
 }
 
+export interface DayCharts {
+  sunRise: Date;
+  sunSet: Date;
+  UVs: number[];
+  windSpeeds: number[];
+  precipitations: number[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
