@@ -19,6 +19,8 @@ import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
+import TileLayer from 'ol/layer/Tile';
+import XYZ from 'ol/source/XYZ';
 
 @Component({
   selector: 'app-map',
@@ -43,6 +45,11 @@ export class MapComponent implements AfterViewInit {
   selectedLat: number | null = null;
   selectedLon: number | null = null;
   isLoadingReverse = false;
+
+  // weather layers
+  private owmApiKey = environment.owmApiKey;
+  activeWeatherLayer: string | null = null;
+  private weatherLayers: { [key: string]: TileLayer<XYZ> } = {};
 
   constructor(private mapService: MapService) {}
 
@@ -70,6 +77,8 @@ export class MapComponent implements AfterViewInit {
       zIndex: 999,
     });
     this.map.addLayer(markerLayer);
+
+    this.initWeatherLayers();
 
     // Click on the map
     this.map.on('click', (event) => {
@@ -108,6 +117,39 @@ export class MapComponent implements AfterViewInit {
     });
 
     this.map.render();
+  }
+
+  initWeatherLayers() {
+    const layerTypes = ['temp_new', 'wind_new', 'precipitation_new', 'clouds_new'];
+
+    layerTypes.forEach(type => {
+      const layer = new TileLayer({
+        source: new XYZ({
+          url: `https://tile.openweathermap.org/map/${type}/{z}/{x}/{y}.png?appid=${this.owmApiKey}`,
+          crossOrigin: 'anonymous',
+        }),
+        opacity: 0.6,
+        visible: false,
+        zIndex: 100,
+      });
+      this.weatherLayers[type] = layer;
+      this.map.addLayer(layer);
+    });
+  }
+
+  toggleWeatherLayer(type: string) {
+    if (this.activeWeatherLayer === type) {
+      this.weatherLayers[type].setVisible(false);
+      this.activeWeatherLayer = null;
+      return;
+    }
+
+    Object.keys(this.weatherLayers).forEach(key => {
+      this.weatherLayers[key].setVisible(false);
+    });
+
+    this.weatherLayers[type].setVisible(true);
+    this.activeWeatherLayer = type;
   }
 
   searchCity() {

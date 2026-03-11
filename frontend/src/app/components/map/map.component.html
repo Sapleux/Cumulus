@@ -1,4 +1,4 @@
-<!-- Barre de recherche -->
+<!-- Research bar -->
 <div class="map-search">
   <div class="search-box">
     <input
@@ -11,9 +11,7 @@
     <button class="search-btn" (click)="searchCity()">Rechercher</button>
     <button class="locate-btn" (click)="locateUser()">📍 Me localiser</button>
     <button class="clear-btn" (click)="clearSelection()" *ngIf="selectedCity || city">✕</button>
-
     <div class="loader" *ngIf="loadingLocation">Localisation en cours...</div>
-
     <ul *ngIf="suggestions.length" class="suggestions">
       <li *ngFor="let place of suggestions" (click)="selectCity(place)">
         {{ place.properties.formatted }}
@@ -22,16 +20,73 @@
   </div>
 </div>
 
-<!-- Carte -->
+<!-- Map -->
 <div #map class="map-container"></div>
 
-<!-- Bloc inférieur : coordonnées et ville -->
-<div class="map-info-panel" *ngIf="selectedLat !== null || isLoadingReverse">
+<!-- Toggle for wheather's layers -->
+<div class="weather-toggle-bar">
+  <span class="toggle-label">Couches météo</span>
 
+  <button
+    class="toggle-btn"
+    [class.active]="activeWeatherLayer === 'temp_new'"
+    (click)="toggleWeatherLayer('temp_new')"
+  >
+    <span class="toggle-icon">🌡️</span>
+    <span>Température</span>
+  </button>
+
+  <button
+    class="toggle-btn"
+    [class.active]="activeWeatherLayer === 'wind_new'"
+    (click)="toggleWeatherLayer('wind_new')"
+  >
+    <span class="toggle-icon">💨</span>
+    <span>Vent</span>
+  </button>
+
+  <button
+    class="toggle-btn"
+    [class.active]="activeWeatherLayer === 'precipitation_new'"
+    (click)="toggleWeatherLayer('precipitation_new')"
+  >
+    <span class="toggle-icon">🌧️</span>
+    <span>Précipitations</span>
+  </button>
+
+  <button
+    class="toggle-btn"
+    [class.active]="activeWeatherLayer === 'clouds_new'"
+    (click)="toggleWeatherLayer('clouds_new')"
+  >
+    <span class="toggle-icon">☁️</span>
+    <span>Nuages</span>
+  </button>
+
+  <!-- Legend -->
+  <div class="legend" *ngIf="activeWeatherLayer">
+    <div class="legend-gradient" [ngClass]="activeWeatherLayer"></div>
+    <div class="legend-labels" *ngIf="activeWeatherLayer === 'temp_new'">
+      <span>-40°C</span><span>0°C</span><span>+40°C</span>
+    </div>
+    <div class="legend-labels" *ngIf="activeWeatherLayer === 'wind_new'">
+      <span>0</span><span>50</span><span>100+ km/h</span>
+    </div>
+    <div class="legend-labels" *ngIf="activeWeatherLayer === 'precipitation_new'">
+      <span>0</span><span>25</span><span>50+ mm</span>
+    </div>
+    <div class="legend-labels" *ngIf="activeWeatherLayer === 'clouds_new'">
+      <span>0%</span><span>50%</span><span>100%</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- Informational bloc -->
+<div class="map-info-panel" *ngIf="selectedLat !== null || isLoadingReverse">
   <div class="info-loading" *ngIf="isLoadingReverse">
     <span class="spinner"></span> Recherche de l'emplacement...
   </div>
-
   <div class="info-content" *ngIf="!isLoadingReverse && selectedLat !== null">
     <div class="info-item">
       <span class="info-icon">📍</span>
@@ -65,5 +120,4 @@
       </div>
     </div>
   </div>
-
 </div>

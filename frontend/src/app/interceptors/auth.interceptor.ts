@@ -1,9 +1,14 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  if (req.url.includes('geoapify.com') || req.url.includes('maps.geoapify.com')) {
+  if (
+    req.url.includes('geoapify.com') ||
+    req.url.includes('maps.geoapify.com') ||
+    req.url.includes('openweathermap.org')
+  ) {
     return next(req);
   }
+
   const token = localStorage.getItem('token');
 
   if (token) {

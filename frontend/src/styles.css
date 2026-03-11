@@ -349,3 +349,144 @@ body {
     display: none;
   }
 }
+
+
+/* TOGGLE BAR */
+.weather-toggle-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  flex-wrap: wrap;
+}
+
+.toggle-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.toggle-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.toggle-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+}
+
+.toggle-icon {
+  font-size: 1rem;
+}
+
+/* LEGEND OF THE MAP */
+.legend {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
+}
+
+.legend-gradient {
+  height: 10px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+/* LAYERS LEGEND */
+.legend-gradient.temp_new {
+  background: linear-gradient(to right,
+    #9b59b6,
+    #3498db,
+    #2ecc71,
+    #f1c40f,
+    #e67e22,
+    #e74c3c
+  );
+}
+
+.legend-gradient.wind_new {
+  background: linear-gradient(to right,
+    #ecf0f1,
+    #3498db,
+    #2ecc71,
+    #f39c12,
+    #e74c3c,
+    #8e44ad
+  );
+}
+
+.legend-gradient.precipitation_new {
+  background: linear-gradient(to right,
+    #ecf0f1,
+    #74b9ff,
+    #0984e3,
+    #6c5ce7
+  );
+}
+
+.legend-gradient.clouds_new {
+  background: linear-gradient(to right,
+    #dfe6e9,
+    #b2bec3,
+    #636e72,
+    #2d3436
+  );
+}
+
+.legend-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .weather-toggle-bar {
+    gap: 0.4rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .toggle-btn span:last-child {
+    display: none;
+  }
+
+  .toggle-btn {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .legend {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
