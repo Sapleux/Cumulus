@@ -303,11 +303,11 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
                     </linearGradient>
                   </defs>
                   <path
-                    d="M 0 35 L 10 32 L 20 25 L 30 18 L 40 12 L 50 8 L 60 12 L 70 18 L 80 25 L 90 30 L 100 35"
+                    [attr.d]="uvFillPath"
                     fill="url(#uvFill)"
                   />
                   <path
-                    d="M 0 35 L 10 32 L 20 25 L 30 18 L 40 12 L 50 8 L 60 12 L 70 18 L 80 25 L 90 30 L 100 35"
+                    [attr.d]="uvChartPath"
                     fill="none"
                     stroke="#f59e0b"
                     stroke-width="2.5"
@@ -317,8 +317,8 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
                 </svg>
               </div>
               <div class="module-footer">
-                <span>Bas</span>
-                <span>8 à 13h</span>
+                <span>Min {{ getMinUV() }}</span>
+                <span>Pic à {{ getUVPeakHour() }}</span>
               </div>
             </div>
 
@@ -339,11 +339,11 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
                     </linearGradient>
                   </defs>
                   <path
-                    d="M 0 30 L 10 28 L 20 22 L 30 18 L 40 16 L 50 15 L 60 16 L 70 20 L 80 24 L 90 27 L 100 30"
+                    [attr.d]="windFillPath"
                     fill="url(#windFill)"
                   />
                   <path
-                    d="M 0 30 L 10 28 L 20 22 L 30 18 L 40 16 L 50 15 L 60 16 L 70 20 L 80 24 L 90 27 L 100 30"
+                    [attr.d]="windChartPath"
                     fill="none"
                     stroke="#3b82f6"
                     stroke-width="2.5"
@@ -353,8 +353,8 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
                 </svg>
               </div>
               <div class="module-footer">
-                <span>12 km/h</span>
-                <span>Vent d'ouest</span>
+                <span>Min {{ getMinWind() }} km/h</span>
+                <span>Max {{ getMaxWindValue() }} km/h</span>
               </div>
             </div>
 
@@ -1357,30 +1357,30 @@ export class CityDetailComponent implements OnInit {
       sunMinutes: 60,
       wind: 8,
       hourlyForecast: [
-        { time: '00h', icon: '🌙', temp: 20, sunMinutes: 0, wind: 5 },
-        { time: '01h', icon: '🌙', temp: 19, sunMinutes: 0, wind: 5 },
-        { time: '02h', icon: '🌙', temp: 19, sunMinutes: 0, wind: 4 },
-        { time: '03h', icon: '🌙', temp: 18, sunMinutes: 0, wind: 4 },
-        { time: '04h', icon: '🌙', temp: 18, sunMinutes: 0, wind: 4 },
-        { time: '05h', icon: '🌙', temp: 18, sunMinutes: 0, wind: 5 },
-        { time: '06h', icon: '🌅', temp: 20, sunMinutes: 30, wind: 5 },
-        { time: '07h', icon: '☀️', temp: 22, sunMinutes: 58, wind: 6 },
-        { time: '08h', icon: '☀️', temp: 24, sunMinutes: 60, wind: 7 },
-        { time: '09h', icon: '☀️', temp: 26, sunMinutes: 60, wind: 8 },
-        { time: '10h', icon: '☀️', temp: 27, sunMinutes: 60, wind: 8 },
-        { time: '11h', icon: '☀️', temp: 28, sunMinutes: 60, wind: 9 },
-        { time: '12h', icon: '☀️', temp: 29, sunMinutes: 60, wind: 10 },
-        { time: '13h', icon: '☀️', temp: 30, sunMinutes: 60, wind: 10 },
-        { time: '14h', icon: '☀️', temp: 30, sunMinutes: 60, wind: 11 },
-        { time: '15h', icon: '☀️', temp: 29, sunMinutes: 60, wind: 11 },
-        { time: '16h', icon: '☀️', temp: 28, sunMinutes: 60, wind: 10 },
-        { time: '17h', icon: '☀️', temp: 27, sunMinutes: 55, wind: 9 },
-        { time: '18h', icon: '🌇', temp: 25, sunMinutes: 45, wind: 8 },
-        { time: '19h', icon: '🌆', temp: 24, sunMinutes: 20, wind: 7 },
-        { time: '20h', icon: '🌃', temp: 22, sunMinutes: 0, wind: 6 },
-        { time: '21h', icon: '🌙', temp: 21, sunMinutes: 0, wind: 6 },
-        { time: '22h', icon: '🌙', temp: 20, sunMinutes: 0, wind: 5 },
-        { time: '23h', icon: '🌙', temp: 20, sunMinutes: 0, wind: 5 }
+        { time: '00h', icon: '🌙', temp: 20, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 },
+        { time: '01h', icon: '🌙', temp: 19, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 },
+        { time: '02h', icon: '🌙', temp: 19, sunMinutes: 0, wind: 4,  uv: 0, precipitation: 0 },
+        { time: '03h', icon: '🌙', temp: 18, sunMinutes: 0, wind: 4,  uv: 0, precipitation: 0 },
+        { time: '04h', icon: '🌙', temp: 18, sunMinutes: 0, wind: 4,  uv: 0, precipitation: 0 },
+        { time: '05h', icon: '🌙', temp: 18, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 },
+        { time: '06h', icon: '🌅', temp: 20, sunMinutes: 30, wind: 5, uv: 1, precipitation: 0 },
+        { time: '07h', icon: '☀️', temp: 22, sunMinutes: 58, wind: 6, uv: 2, precipitation: 0 },
+        { time: '08h', icon: '☀️', temp: 24, sunMinutes: 60, wind: 7, uv: 4, precipitation: 0 },
+        { time: '09h', icon: '☀️', temp: 26, sunMinutes: 60, wind: 8, uv: 6, precipitation: 0 },
+        { time: '10h', icon: '☀️', temp: 27, sunMinutes: 60, wind: 8, uv: 8, precipitation: 0 },
+        { time: '11h', icon: '☀️', temp: 28, sunMinutes: 60, wind: 9, uv: 9, precipitation: 0 },
+        { time: '12h', icon: '☀️', temp: 29, sunMinutes: 60, wind: 10, uv: 10, precipitation: 0 },
+        { time: '13h', icon: '☀️', temp: 30, sunMinutes: 60, wind: 10, uv: 9, precipitation: 0 },
+        { time: '14h', icon: '☀️', temp: 30, sunMinutes: 60, wind: 11, uv: 8, precipitation: 0 },
+        { time: '15h', icon: '☀️', temp: 29, sunMinutes: 60, wind: 11, uv: 6, precipitation: 0 },
+        { time: '16h', icon: '☀️', temp: 28, sunMinutes: 60, wind: 10, uv: 4, precipitation: 0 },
+        { time: '17h', icon: '☀️', temp: 27, sunMinutes: 55, wind: 9, uv: 2, precipitation: 0 },
+        { time: '18h', icon: '🌇', temp: 25, sunMinutes: 45, wind: 8, uv: 1, precipitation: 0 },
+        { time: '19h', icon: '🌆', temp: 24, sunMinutes: 20, wind: 7, uv: 0, precipitation: 0 },
+        { time: '20h', icon: '🌃', temp: 22, sunMinutes: 0, wind: 6,  uv: 0, precipitation: 0 },
+        { time: '21h', icon: '🌙', temp: 21, sunMinutes: 0, wind: 6,  uv: 0, precipitation: 0 },
+        { time: '22h', icon: '🌙', temp: 20, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 },
+        { time: '23h', icon: '🌙', temp: 20, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 }
       ]
     },
     'Paris': {
@@ -1389,7 +1389,7 @@ export class CityDetailComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.MainlyClear,
       sunMinutes: 45,
       wind: 12,
-      hourlyForecast: this.generateHourlyForecast(18, 23, '⛅', 40, 12)
+      hourlyForecast: this.generateHourlyForecast(18, 23, '⛅', 40, 12, 6, 0)
     },
     'Londres': {
       name: 'Londres',
@@ -1397,7 +1397,7 @@ export class CityDetailComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.Fog,
       sunMinutes: 15,
       wind: 5,
-      hourlyForecast: this.generateHourlyForecast(13, 16, '🌫️', 15, 5)
+      hourlyForecast: this.generateHourlyForecast(13, 16, '🌫️', 15, 5, 2, 0.4)
     },
     'Brest': {
       name: 'Brest',
@@ -1405,7 +1405,7 @@ export class CityDetailComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.Drizzle,
       sunMinutes: 25,
       wind: 18,
-      hourlyForecast: this.generateHourlyForecast(14, 17, '🌦️', 25, 18)
+      hourlyForecast: this.generateHourlyForecast(14, 17, '🌦️', 25, 18, 3, 1.2)
     },
     'Lille': {
       name: 'Lille',
@@ -1413,7 +1413,7 @@ export class CityDetailComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.Rain,
       sunMinutes: 10,
       wind: 22,
-      hourlyForecast: this.generateHourlyForecast(10, 13, '🌧️', 10, 22)
+      hourlyForecast: this.generateHourlyForecast(10, 13, '🌧️', 10, 22, 2, 2.5)
     },
     'Chamonix': {
       name: 'Chamonix',
@@ -1421,7 +1421,7 @@ export class CityDetailComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.Snow,
       sunMinutes: 5,
       wind: 15,
-      hourlyForecast: this.generateHourlyForecast(-4, 0, '❄️', 5, 15)
+      hourlyForecast: this.generateHourlyForecast(-4, 0, '❄️', 5, 15, 3, 1.8)
     },
     'Toulouse': {
       name: 'Toulouse',
@@ -1429,7 +1429,7 @@ export class CityDetailComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.Thunderstorm,
       sunMinutes: 20,
       wind: 35,
-      hourlyForecast: this.generateHourlyForecast(16, 19, '⛈️', 20, 35)
+      hourlyForecast: this.generateHourlyForecast(16, 19, '⛈️', 20, 35, 4, 3.5)
     }
   };
 
@@ -1444,30 +1444,14 @@ export class CityDetailComponent implements OnInit {
     { name: 'Vendredi', icon: '☁️', tempMin: 7, tempMax: 21 }
   ];
 
-  // Chart data
-  uvChartPath = 'M 0 90 L 25 85 L 50 70 L 75 50 L 100 35 L 125 25 L 150 20 L 175 25 L 200 40 L 225 60 L 250 75 L 275 85 L 300 90';
-  windChartPath = 'M 0 70 L 25 65 L 50 55 L 75 45 L 100 40 L 125 38 L 150 35 L 175 40 L 200 50 L 225 60 L 250 65 L 275 68 L 300 70';
-  precipitationBars = [
-    { height: 30 }, { height: 45 }, { height: 60 }, { height: 40 },
-    { height: 55 }, { height: 35 }, { height: 50 }, { height: 65 },
-    { height: 42 }, { height: 38 }, { height: 48 }, { height: 52 }
-  ];
-
-  // Points for charts with actual UV values (0-11 scale)
-  uvData = [2, 3, 4, 5, 7, 9, 10, 9, 7, 5, 4, 3, 2];
-  uvPoints = [
-    { x: 0, y: 90, value: 2 }, { x: 25, y: 85, value: 3 }, { x: 50, y: 70, value: 4 }, { x: 75, y: 50, value: 5 },
-    { x: 100, y: 35, value: 7 }, { x: 125, y: 25, value: 9 }, { x: 150, y: 20, value: 10 }, { x: 175, y: 25, value: 9 },
-    { x: 200, y: 40, value: 7 }, { x: 225, y: 60, value: 5 }, { x: 250, y: 75, value: 4 }, { x: 275, y: 85, value: 3 }, { x: 300, y: 90, value: 2 }
-  ];
-
-  // Wind data in km/h
-  windData = [12, 14, 18, 22, 25, 27, 28, 26, 22, 18, 15, 14, 12];
-  windPoints = [
-    { x: 0, y: 70, value: 12 }, { x: 25, y: 65, value: 14 }, { x: 50, y: 55, value: 18 }, { x: 75, y: 45, value: 22 },
-    { x: 100, y: 40, value: 25 }, { x: 125, y: 38, value: 27 }, { x: 150, y: 35, value: 28 }, { x: 175, y: 40, value: 26 },
-    { x: 200, y: 50, value: 22 }, { x: 225, y: 60, value: 18 }, { x: 250, y: 65, value: 15 }, { x: 275, y: 68, value: 14 }, { x: 300, y: 70, value: 12 }
-  ];
+  // Chart data (computed from hourly forecast)
+  uvChartPath = '';
+  uvFillPath = '';
+  windChartPath = '';
+  windFillPath = '';
+  precipitationBars: { height: number; value: number }[] = [];
+  uvPoints: { x: number; y: number; value: number }[] = [];
+  windPoints: { x: number; y: number; value: number }[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -1482,6 +1466,54 @@ export class CityDetailComponent implements OnInit {
     this.weatherCode = cityData.weatherCode;
     this.currentTheme = WEATHER_THEMES[this.weatherCode];
     this.hourlyForecast = cityData.hourlyForecast;
+    this.buildCharts();
+  }
+
+  buildCharts(): void {
+    const hours = this.hourlyForecast;
+    // Sample every 2 hours for 12 points (0,2,4,...,22)
+    const sampled = Array.from({ length: 12 }, (_, i) => hours[i * 2]);
+
+    // --- UV chart ---
+    const maxUV = Math.max(...sampled.map(h => h.uv), 1);
+    this.uvPoints = sampled.map((h, i) => {
+      const x = (i / (sampled.length - 1)) * 100;
+      const y = 38 - (h.uv / maxUV) * 34; // y in [4, 38]
+      return { x, y, value: h.uv };
+    });
+    this.uvChartPath = this.buildPath(this.uvPoints);
+    this.uvFillPath = this.buildFillPath(this.uvPoints);
+
+    // --- Wind chart ---
+    const winds = sampled.map(h => h.wind);
+    const maxWind = Math.max(...winds, 1);
+    const minWind = Math.min(...winds);
+    this.windPoints = sampled.map((h, i) => {
+      const x = (i / (sampled.length - 1)) * 100;
+      const range = maxWind - minWind || 1;
+      const y = 38 - ((h.wind - minWind) / range) * 34;
+      return { x, y, value: h.wind };
+    });
+    this.windChartPath = this.buildPath(this.windPoints);
+    this.windFillPath = this.buildFillPath(this.windPoints);
+
+    // --- Precipitation bars ---
+    const maxPrecip = Math.max(...hours.map((h: any) => h.precipitation), 0.1);
+    this.precipitationBars = hours.map((h: any) => ({
+      height: Math.round((h.precipitation / maxPrecip) * 100),
+      value: h.precipitation
+    }));
+  }
+
+  private buildPath(points: { x: number; y: number }[]): string {
+    return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  }
+
+  private buildFillPath(points: { x: number; y: number }[]): string {
+    const line = this.buildPath(points);
+    const last = points[points.length - 1];
+    const first = points[0];
+    return `${line} L ${last.x.toFixed(1)} 40 L ${first.x.toFixed(1)} 40 Z`;
   }
 
   selectDay(day: any): void {
@@ -1605,15 +1637,40 @@ export class CityDetailComponent implements OnInit {
   }
 
   getMaxUV(): number {
-    return this.hoveredUV !== null ? this.hoveredUV : 8;
+    if (this.hoveredUV !== null) return this.hoveredUV;
+    return Math.max(...this.hourlyForecast.map((h: any) => h.uv), 0);
+  }
+
+  getMinUV(): number {
+    const dayValues = this.hourlyForecast.filter((h: any) => h.uv > 0).map((h: any) => h.uv);
+    return dayValues.length ? Math.min(...dayValues) : 0;
+  }
+
+  getUVPeakHour(): string {
+    let max = -1, hour = '';
+    for (const h of this.hourlyForecast) {
+      if (h.uv > max) { max = h.uv; hour = h.time; }
+    }
+    return hour || '--';
   }
 
   getMaxWind(): number {
-    return this.hoveredWind !== null ? this.hoveredWind : 35;
+    if (this.hoveredWind !== null) return this.hoveredWind;
+    return Math.max(...this.hourlyForecast.map((h: any) => h.wind), 0);
+  }
+
+  getMinWind(): number {
+    return Math.min(...this.hourlyForecast.map((h: any) => h.wind));
+  }
+
+  getMaxWindValue(): number {
+    return Math.max(...this.hourlyForecast.map((h: any) => h.wind));
   }
 
   getTotalPrecipitation(): number {
-    return this.hoveredPrecipitation !== null ? this.hoveredPrecipitation : 5.2;
+    if (this.hoveredPrecipitation !== null) return this.hoveredPrecipitation;
+    const total = this.hourlyForecast.reduce((sum: number, h: any) => sum + h.precipitation, 0);
+    return Math.round(total * 10) / 10;
   }
 
   getPrecipitationColor(height: number): string {
@@ -1668,10 +1725,7 @@ export class CityDetailComponent implements OnInit {
   }
 
   onPrecipitationBarHover(index: number): void {
-    // Calculate precipitation value based on bar height (height is percentage, scale to mm)
-    const bar = this.precipitationBars[index];
-    const precipValue = (bar.height / 100) * 8; // Scale to max 8mm
-    this.hoveredPrecipitation = Math.round(precipValue * 10) / 10;
+    this.hoveredPrecipitation = this.precipitationBars[index].value;
   }
 
   resetUVHover(): void {
@@ -1706,56 +1760,47 @@ export class CityDetailComponent implements OnInit {
     return iconMap[iconText] || 'icon-sun';
   }
 
-  generateHourlyForecast(minTemp: number, maxTemp: number, icon: string, avgSun: number, avgWind: number): any[] {
+  generateHourlyForecast(minTemp: number, maxTemp: number, icon: string, avgSun: number, avgWind: number, maxUV: number = 5, avgPrecip: number = 0): any[] {
     const hours = [];
     for (let i = 0; i < 24; i++) {
       const hourStr = i.toString().padStart(2, '0') + 'h';
-      let temp, sunMinutes, currentIcon;
+      let temp, sunMinutes, currentIcon, uv, precipitation;
 
       if (i >= 0 && i < 6) {
-        // Night
-        temp = minTemp;
-        sunMinutes = 0;
-        currentIcon = '🌙';
+        temp = minTemp; sunMinutes = 0; currentIcon = '🌙';
+        uv = 0; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.3 * 10) / 10 : 0;
       } else if (i === 6) {
-        // Sunrise
-        temp = minTemp + 2;
-        sunMinutes = 30;
-        currentIcon = '🌅';
+        temp = minTemp + 2; sunMinutes = 30; currentIcon = '🌅';
+        uv = 1; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.5 * 10) / 10 : 0;
       } else if (i >= 7 && i < 18) {
-        // Day - temperature rises then falls
         const dayProgress = (i - 7) / 11;
         temp = Math.round(minTemp + (maxTemp - minTemp) * (1 - Math.abs(dayProgress - 0.5) * 2));
         sunMinutes = avgSun;
         currentIcon = icon;
+        uv = Math.round(maxUV * (1 - Math.abs(dayProgress - 0.5) * 2));
+        precipitation = avgPrecip > 0 ? Math.round(avgPrecip * (0.6 + Math.random() * 0.8) * 10) / 10 : 0;
       } else if (i === 18) {
-        // Sunset
-        temp = minTemp + 3;
-        sunMinutes = 45;
-        currentIcon = '🌇';
+        temp = minTemp + 3; sunMinutes = 45; currentIcon = '🌇';
+        uv = 1; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.4 * 10) / 10 : 0;
       } else if (i === 19) {
-        // Evening
-        temp = minTemp + 2;
-        sunMinutes = 20;
-        currentIcon = '🌆';
+        temp = minTemp + 2; sunMinutes = 20; currentIcon = '🌆';
+        uv = 0; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.3 * 10) / 10 : 0;
       } else if (i === 20) {
-        // Dusk
-        temp = minTemp + 1;
-        sunMinutes = 0;
-        currentIcon = '🌃';
+        temp = minTemp + 1; sunMinutes = 0; currentIcon = '🌃';
+        uv = 0; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.2 * 10) / 10 : 0;
       } else {
-        // Night
-        temp = minTemp;
-        sunMinutes = 0;
-        currentIcon = '🌙';
+        temp = minTemp; sunMinutes = 0; currentIcon = '🌙';
+        uv = 0; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.1 * 10) / 10 : 0;
       }
 
       hours.push({
         time: hourStr,
         icon: currentIcon,
-        temp: temp,
-        sunMinutes: sunMinutes,
-        wind: avgWind + Math.floor(Math.random() * 3 - 1)
+        temp,
+        sunMinutes,
+        wind: Math.max(0, avgWind + Math.floor(Math.random() * 5 - 2)),
+        uv,
+        precipitation
       });
     }
     return hours;
