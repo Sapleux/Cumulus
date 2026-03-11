@@ -2,6 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../models/weather.model';
+import { WeatherService, WeatherIntrepretationCode, DayCharts } from '../../services/weather.service';
+import { forkJoin } from 'rxjs';
+
+const CITY_COORDS: { [name: string]: { lat: number; lon: number } } = {
+  'Nice':      { lat: 43.7102, lon: 7.2620 },
+  'Paris':     { lat: 48.8566, lon: 2.3522 },
+  'Londres':   { lat: 51.5074, lon: -0.1278 },
+  'Brest':     { lat: 48.3904, lon: -4.4861 },
+  'Lille':     { lat: 50.6292, lon: 3.0573 },
+  'Chamonix':  { lat: 45.9237, lon: 6.8694 },
+  'Toulouse':  { lat: 43.6047, lon: 1.4442 },
+};
+
+const DAY_NAMES = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
 @Component({
   selector: 'app-city-detail',
@@ -1339,112 +1353,21 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
   `]
 })
 export class CityDetailComponent implements OnInit {
-  city: any;
+  city: any = { name: '' };
   hoveredHour: any = null;
   selectedDay: string | null = null;
-  sunrise = '07h00';
-  sunset = '18h00';
+  selectedDayIndex = 0;
+  sunrise = '--:--';
+  sunset = '--:--';
   currentTheme: WeatherTheme = WEATHER_THEMES[WeatherInterpretationCode.ClearSky];
   weatherCode: WeatherInterpretationCode = WeatherInterpretationCode.ClearSky;
   tooltipPosition = { top: 0, left: 0 };
-
-  // Mock data by city
-  citiesData: { [key: string]: any } = {
-    'Nice': {
-      name: 'Nice',
-      temperature: 28,
-      weatherCode: WeatherInterpretationCode.ClearSky,
-      sunMinutes: 60,
-      wind: 8,
-      hourlyForecast: [
-        { time: '00h', icon: '🌙', temp: 20, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 },
-        { time: '01h', icon: '🌙', temp: 19, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 },
-        { time: '02h', icon: '🌙', temp: 19, sunMinutes: 0, wind: 4,  uv: 0, precipitation: 0 },
-        { time: '03h', icon: '🌙', temp: 18, sunMinutes: 0, wind: 4,  uv: 0, precipitation: 0 },
-        { time: '04h', icon: '🌙', temp: 18, sunMinutes: 0, wind: 4,  uv: 0, precipitation: 0 },
-        { time: '05h', icon: '🌙', temp: 18, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 },
-        { time: '06h', icon: '🌅', temp: 20, sunMinutes: 30, wind: 5, uv: 1, precipitation: 0 },
-        { time: '07h', icon: '☀️', temp: 22, sunMinutes: 58, wind: 6, uv: 2, precipitation: 0 },
-        { time: '08h', icon: '☀️', temp: 24, sunMinutes: 60, wind: 7, uv: 4, precipitation: 0 },
-        { time: '09h', icon: '☀️', temp: 26, sunMinutes: 60, wind: 8, uv: 6, precipitation: 0 },
-        { time: '10h', icon: '☀️', temp: 27, sunMinutes: 60, wind: 8, uv: 8, precipitation: 0 },
-        { time: '11h', icon: '☀️', temp: 28, sunMinutes: 60, wind: 9, uv: 9, precipitation: 0 },
-        { time: '12h', icon: '☀️', temp: 29, sunMinutes: 60, wind: 10, uv: 10, precipitation: 0 },
-        { time: '13h', icon: '☀️', temp: 30, sunMinutes: 60, wind: 10, uv: 9, precipitation: 0 },
-        { time: '14h', icon: '☀️', temp: 30, sunMinutes: 60, wind: 11, uv: 8, precipitation: 0 },
-        { time: '15h', icon: '☀️', temp: 29, sunMinutes: 60, wind: 11, uv: 6, precipitation: 0 },
-        { time: '16h', icon: '☀️', temp: 28, sunMinutes: 60, wind: 10, uv: 4, precipitation: 0 },
-        { time: '17h', icon: '☀️', temp: 27, sunMinutes: 55, wind: 9, uv: 2, precipitation: 0 },
-        { time: '18h', icon: '🌇', temp: 25, sunMinutes: 45, wind: 8, uv: 1, precipitation: 0 },
-        { time: '19h', icon: '🌆', temp: 24, sunMinutes: 20, wind: 7, uv: 0, precipitation: 0 },
-        { time: '20h', icon: '🌃', temp: 22, sunMinutes: 0, wind: 6,  uv: 0, precipitation: 0 },
-        { time: '21h', icon: '🌙', temp: 21, sunMinutes: 0, wind: 6,  uv: 0, precipitation: 0 },
-        { time: '22h', icon: '🌙', temp: 20, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 },
-        { time: '23h', icon: '🌙', temp: 20, sunMinutes: 0, wind: 5,  uv: 0, precipitation: 0 }
-      ]
-    },
-    'Paris': {
-      name: 'Paris',
-      temperature: 22,
-      weatherCode: WeatherInterpretationCode.MainlyClear,
-      sunMinutes: 45,
-      wind: 12,
-      hourlyForecast: this.generateHourlyForecast(18, 23, '⛅', 40, 12, 6, 0)
-    },
-    'Londres': {
-      name: 'Londres',
-      temperature: 15,
-      weatherCode: WeatherInterpretationCode.Fog,
-      sunMinutes: 15,
-      wind: 5,
-      hourlyForecast: this.generateHourlyForecast(13, 16, '🌫️', 15, 5, 2, 0.4)
-    },
-    'Brest': {
-      name: 'Brest',
-      temperature: 16,
-      weatherCode: WeatherInterpretationCode.Drizzle,
-      sunMinutes: 25,
-      wind: 18,
-      hourlyForecast: this.generateHourlyForecast(14, 17, '🌦️', 25, 18, 3, 1.2)
-    },
-    'Lille': {
-      name: 'Lille',
-      temperature: 12,
-      weatherCode: WeatherInterpretationCode.Rain,
-      sunMinutes: 10,
-      wind: 22,
-      hourlyForecast: this.generateHourlyForecast(10, 13, '🌧️', 10, 22, 2, 2.5)
-    },
-    'Chamonix': {
-      name: 'Chamonix',
-      temperature: -2,
-      weatherCode: WeatherInterpretationCode.Snow,
-      sunMinutes: 5,
-      wind: 15,
-      hourlyForecast: this.generateHourlyForecast(-4, 0, '❄️', 5, 15, 3, 1.8)
-    },
-    'Toulouse': {
-      name: 'Toulouse',
-      temperature: 18,
-      weatherCode: WeatherInterpretationCode.Thunderstorm,
-      sunMinutes: 20,
-      wind: 35,
-      hourlyForecast: this.generateHourlyForecast(16, 19, '⛈️', 20, 35, 4, 3.5)
-    }
-  };
+  loading = true;
 
   hourlyForecast: any[] = [];
-  allHoursForecast: any[] = [];
+  weeklyForecast: { name: string; icon: string; tempMin: number; tempMax: number; date: Date }[] = [];
 
-  weeklyForecast = [
-    { name: 'Lundi', icon: '☀️', tempMin: 11, tempMax: 21 },
-    { name: 'Mardi', icon: '⛅', tempMin: 7, tempMax: 21 },
-    { name: 'Mercredi', icon: '⛅', tempMin: 7, tempMax: 21 },
-    { name: 'Jeudi', icon: '🌥️', tempMin: 7, tempMax: 21 },
-    { name: 'Vendredi', icon: '☁️', tempMin: 7, tempMax: 21 }
-  ];
-
-  // Chart data (computed from hourly forecast)
+  // Chart data (computed from getDayCharts)
   uvChartPath = '';
   uvFillPath = '';
   windChartPath = '';
@@ -1453,55 +1376,124 @@ export class CityDetailComponent implements OnInit {
   uvPoints: { x: number; y: number; value: number }[] = [];
   windPoints: { x: number; y: number; value: number }[] = [];
 
+  // Raw chart data for the selected day
+  private dayCharts: DayCharts | null = null;
+
   constructor(
     private route: ActivatedRoute,
-    private router: Router
-  ) { }
+    private router: Router,
+    private weatherService: WeatherService
+  ) {}
 
   ngOnInit(): void {
-    const cityName = this.route.snapshot.paramMap.get('name');
-    const cityData = this.citiesData[cityName || 'Nice'] || this.citiesData['Nice'];
+    const cityName = this.route.snapshot.paramMap.get('name') || 'Nice';
+    const coords = CITY_COORDS[cityName] ?? CITY_COORDS['Nice'];
+    this.city = { name: cityName };
 
-    this.city = cityData;
-    this.weatherCode = cityData.weatherCode;
-    this.currentTheme = WEATHER_THEMES[this.weatherCode];
-    this.hourlyForecast = cityData.hourlyForecast;
-    this.buildCharts();
+    const today = new Date();
+
+    forkJoin({
+      wicTimeline: this.weatherService.getWICTimeline(coords.lat, coords.lon, today, today),
+      timelineOver: this.weatherService.getWICTimelineOver(coords.lat, coords.lon, today),
+      weekly:       this.weatherService.getSummaryOfNextDays(coords.lat, coords.lon),
+      charts:       this.weatherService.getDayCharts(coords.lat, coords.lon, today),
+    }).subscribe({
+      next: ({ wicTimeline, timelineOver, weekly, charts }) => {
+        // --- Thème depuis le code météo de l'heure courante ---
+        const currentHour = today.getHours();
+        const serviceWic = wicTimeline[currentHour] ?? WeatherIntrepretationCode.ClearSky;
+        this.weatherCode = serviceWic as unknown as WeatherInterpretationCode;
+        this.currentTheme = WEATHER_THEMES[this.weatherCode];
+
+        // --- Prévisions horaires ---
+        this.hourlyForecast = timelineOver.map((h, i) => ({
+          time: `${i.toString().padStart(2, '0')}h`,
+          icon: this.wicToIcon(wicTimeline[i]),
+          temp: Math.round(h.temperature),
+          sunMinutes: Math.round(h.sunDuration / 60),
+          wind: Math.round(h.windSpeed),
+        }));
+        this.city = {
+          name: cityName,
+          temperature: this.hourlyForecast[currentHour]?.temp ?? '--',
+        };
+
+        // --- Prévisions hebdomadaires ---
+        this.weeklyForecast = weekly.map((day, i) => {
+          const date = new Date(today);
+          date.setDate(today.getDate() + i);
+          return {
+            name: DAY_NAMES[date.getDay()],
+            icon: this.wicToIcon(day.wic),
+            tempMin: Math.round(day.minTemperature),
+            tempMax: Math.round(day.maxTemperature),
+            date,
+          };
+        });
+
+        // --- Graphiques (jour courant) ---
+        this.dayCharts = charts;
+        this.sunrise = this.formatTime(charts.sunRise);
+        this.sunset = this.formatTime(charts.sunSet);
+        this.buildCharts(charts);
+
+        // Sélectionner le jour courant par défaut
+        if (this.weeklyForecast.length > 0) {
+          this.selectedDay = this.weeklyForecast[0].name;
+          this.selectedDayIndex = 0;
+        }
+
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
   }
 
-  buildCharts(): void {
-    const hours = this.hourlyForecast;
-    // Sample every 2 hours for 12 points (0,2,4,...,22)
-    const sampled = Array.from({ length: 12 }, (_, i) => hours[i * 2]);
+  selectDay(day: any): void {
+    const idx = this.weeklyForecast.indexOf(day);
+    this.selectedDay = day.name;
+    this.selectedDayIndex = idx;
 
-    // --- UV chart ---
-    const maxUV = Math.max(...sampled.map(h => h.uv), 1);
-    this.uvPoints = sampled.map((h, i) => {
-      const x = (i / (sampled.length - 1)) * 100;
-      const y = 38 - (h.uv / maxUV) * 34; // y in [4, 38]
-      return { x, y, value: h.uv };
+    const cityName = this.city.name;
+    const coords = CITY_COORDS[cityName] ?? CITY_COORDS['Nice'];
+    const date = day.date as Date;
+
+    this.weatherService.getDayCharts(coords.lat, coords.lon, date).subscribe(charts => {
+      this.dayCharts = charts;
+      this.sunrise = this.formatTime(charts.sunRise);
+      this.sunset = this.formatTime(charts.sunSet);
+      this.buildCharts(charts);
     });
+  }
+
+  buildCharts(charts: DayCharts): void {
+    const sampleUV   = Array.from({ length: 12 }, (_, i) => charts.UVs[i * 2] ?? 0);
+    const sampleWind = Array.from({ length: 12 }, (_, i) => charts.windSpeeds[i * 2] ?? 0);
+
+    const maxUV = Math.max(...sampleUV, 1);
+    this.uvPoints = sampleUV.map((v, i) => ({
+      x: (i / 11) * 100,
+      y: 38 - (v / maxUV) * 34,
+      value: Math.round(v * 10) / 10,
+    }));
     this.uvChartPath = this.buildPath(this.uvPoints);
-    this.uvFillPath = this.buildFillPath(this.uvPoints);
+    this.uvFillPath  = this.buildFillPath(this.uvPoints);
 
-    // --- Wind chart ---
-    const winds = sampled.map(h => h.wind);
-    const maxWind = Math.max(...winds, 1);
-    const minWind = Math.min(...winds);
-    this.windPoints = sampled.map((h, i) => {
-      const x = (i / (sampled.length - 1)) * 100;
-      const range = maxWind - minWind || 1;
-      const y = 38 - ((h.wind - minWind) / range) * 34;
-      return { x, y, value: h.wind };
-    });
+    const maxWind = Math.max(...sampleWind, 1);
+    const minWind = Math.min(...sampleWind);
+    const windRange = maxWind - minWind || 1;
+    this.windPoints = sampleWind.map((v, i) => ({
+      x: (i / 11) * 100,
+      y: 38 - ((v - minWind) / windRange) * 34,
+      value: Math.round(v),
+    }));
     this.windChartPath = this.buildPath(this.windPoints);
-    this.windFillPath = this.buildFillPath(this.windPoints);
+    this.windFillPath  = this.buildFillPath(this.windPoints);
 
-    // --- Precipitation bars ---
-    const maxPrecip = Math.max(...hours.map((h: any) => h.precipitation), 0.1);
-    this.precipitationBars = hours.map((h: any) => ({
-      height: Math.round((h.precipitation / maxPrecip) * 100),
-      value: h.precipitation
+    const maxPrecip = Math.max(...charts.precipitations, 0.1);
+    this.precipitationBars = charts.precipitations.map(v => ({
+      height: Math.round((v / maxPrecip) * 100),
+      value: Math.round(v * 10) / 10,
     }));
   }
 
@@ -1516,8 +1508,21 @@ export class CityDetailComponent implements OnInit {
     return `${line} L ${last.x.toFixed(1)} 40 L ${first.x.toFixed(1)} 40 Z`;
   }
 
-  selectDay(day: any): void {
-    this.selectedDay = day.name;
+  private formatTime(date: Date): string {
+    return `${date.getHours().toString().padStart(2, '0')}h${date.getMinutes().toString().padStart(2, '0')}`;
+  }
+
+  private wicToIcon(wic: WeatherIntrepretationCode): string {
+    switch (wic) {
+      case WeatherIntrepretationCode.ClearSky:    return '☀️';
+      case WeatherIntrepretationCode.MainlyClear: return '⛅';
+      case WeatherIntrepretationCode.Fog:         return '🌫️';
+      case WeatherIntrepretationCode.Drizzle:     return '🌦️';
+      case WeatherIntrepretationCode.Rain:        return '🌧️';
+      case WeatherIntrepretationCode.Snow:        return '❄️';
+      case WeatherIntrepretationCode.Thunderstorm: return '⛈️';
+      default: return '☀️';
+    }
   }
 
   onHourHover(event: MouseEvent, hour: any): void {
@@ -1633,43 +1638,51 @@ export class CityDetailComponent implements OnInit {
   }
 
   getDaylightDuration(): string {
-    return '12h 30min';
+    if (!this.dayCharts) return '--';
+    const ms = this.dayCharts.sunSet.getTime() - this.dayCharts.sunRise.getTime();
+    const totalMin = Math.round(ms / 60000);
+    return `${Math.floor(totalMin / 60)}h ${totalMin % 60}min`;
   }
 
   getMaxUV(): number {
     if (this.hoveredUV !== null) return this.hoveredUV;
-    return Math.max(...this.hourlyForecast.map((h: any) => h.uv), 0);
+    if (!this.dayCharts) return 0;
+    return Math.round(Math.max(...this.dayCharts.UVs) * 10) / 10;
   }
 
   getMinUV(): number {
-    const dayValues = this.hourlyForecast.filter((h: any) => h.uv > 0).map((h: any) => h.uv);
-    return dayValues.length ? Math.min(...dayValues) : 0;
+    if (!this.dayCharts) return 0;
+    const dayValues = this.dayCharts.UVs.filter(v => v > 0);
+    return dayValues.length ? Math.round(Math.min(...dayValues) * 10) / 10 : 0;
   }
 
   getUVPeakHour(): string {
-    let max = -1, hour = '';
-    for (const h of this.hourlyForecast) {
-      if (h.uv > max) { max = h.uv; hour = h.time; }
-    }
-    return hour || '--';
+    if (!this.dayCharts) return '--';
+    const maxVal = Math.max(...this.dayCharts.UVs);
+    const idx = this.dayCharts.UVs.indexOf(maxVal);
+    return `${idx.toString().padStart(2, '0')}h`;
   }
 
   getMaxWind(): number {
     if (this.hoveredWind !== null) return this.hoveredWind;
-    return Math.max(...this.hourlyForecast.map((h: any) => h.wind), 0);
+    if (!this.dayCharts) return 0;
+    return Math.round(Math.max(...this.dayCharts.windSpeeds));
   }
 
   getMinWind(): number {
-    return Math.min(...this.hourlyForecast.map((h: any) => h.wind));
+    if (!this.dayCharts) return 0;
+    return Math.round(Math.min(...this.dayCharts.windSpeeds));
   }
 
   getMaxWindValue(): number {
-    return Math.max(...this.hourlyForecast.map((h: any) => h.wind));
+    if (!this.dayCharts) return 0;
+    return Math.round(Math.max(...this.dayCharts.windSpeeds));
   }
 
   getTotalPrecipitation(): number {
     if (this.hoveredPrecipitation !== null) return this.hoveredPrecipitation;
-    const total = this.hourlyForecast.reduce((sum: number, h: any) => sum + h.precipitation, 0);
+    if (!this.dayCharts) return 0;
+    const total = this.dayCharts.precipitations.reduce((s, v) => s + v, 0);
     return Math.round(total * 10) / 10;
   }
 
@@ -1760,49 +1773,4 @@ export class CityDetailComponent implements OnInit {
     return iconMap[iconText] || 'icon-sun';
   }
 
-  generateHourlyForecast(minTemp: number, maxTemp: number, icon: string, avgSun: number, avgWind: number, maxUV: number = 5, avgPrecip: number = 0): any[] {
-    const hours = [];
-    for (let i = 0; i < 24; i++) {
-      const hourStr = i.toString().padStart(2, '0') + 'h';
-      let temp, sunMinutes, currentIcon, uv, precipitation;
-
-      if (i >= 0 && i < 6) {
-        temp = minTemp; sunMinutes = 0; currentIcon = '🌙';
-        uv = 0; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.3 * 10) / 10 : 0;
-      } else if (i === 6) {
-        temp = minTemp + 2; sunMinutes = 30; currentIcon = '🌅';
-        uv = 1; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.5 * 10) / 10 : 0;
-      } else if (i >= 7 && i < 18) {
-        const dayProgress = (i - 7) / 11;
-        temp = Math.round(minTemp + (maxTemp - minTemp) * (1 - Math.abs(dayProgress - 0.5) * 2));
-        sunMinutes = avgSun;
-        currentIcon = icon;
-        uv = Math.round(maxUV * (1 - Math.abs(dayProgress - 0.5) * 2));
-        precipitation = avgPrecip > 0 ? Math.round(avgPrecip * (0.6 + Math.random() * 0.8) * 10) / 10 : 0;
-      } else if (i === 18) {
-        temp = minTemp + 3; sunMinutes = 45; currentIcon = '🌇';
-        uv = 1; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.4 * 10) / 10 : 0;
-      } else if (i === 19) {
-        temp = minTemp + 2; sunMinutes = 20; currentIcon = '🌆';
-        uv = 0; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.3 * 10) / 10 : 0;
-      } else if (i === 20) {
-        temp = minTemp + 1; sunMinutes = 0; currentIcon = '🌃';
-        uv = 0; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.2 * 10) / 10 : 0;
-      } else {
-        temp = minTemp; sunMinutes = 0; currentIcon = '🌙';
-        uv = 0; precipitation = avgPrecip > 0 ? Math.round(avgPrecip * 0.1 * 10) / 10 : 0;
-      }
-
-      hours.push({
-        time: hourStr,
-        icon: currentIcon,
-        temp,
-        sunMinutes,
-        wind: Math.max(0, avgWind + Math.floor(Math.random() * 5 - 2)),
-        uv,
-        precipitation
-      });
-    }
-    return hours;
-  }
 }
