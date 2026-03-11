@@ -290,7 +290,7 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
             <div class="detail-module">
               <div class="module-header">
                 <span class="module-title">INDICE UV</span>
-                <span class="module-highlight">{{ getMaxUV() }}</span>
+                <span class="module-highlight" [class.module-highlight--active]="hoveredUV !== null">{{ getMaxUV() }}</span>
               </div>
               <div class="simple-chart">
                 <svg viewBox="0 0 100 40" preserveAspectRatio="none"
@@ -326,7 +326,7 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
             <div class="detail-module">
               <div class="module-header">
                 <span class="module-title">VENT</span>
-                <span class="module-highlight">{{ getMaxWind() }} km/h</span>
+                <span class="module-highlight" [class.module-highlight--active]="hoveredWind !== null">{{ getMaxWind() }} km/h</span>
               </div>
               <div class="simple-chart">
                 <svg viewBox="0 0 100 40" preserveAspectRatio="none"
@@ -362,7 +362,7 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
             <div class="detail-module">
               <div class="module-header">
                 <span class="module-title">PRÉCIPITATIONS</span>
-                <span class="module-highlight">{{ getTotalPrecipitation() }} mm</span>
+                <span class="module-highlight" [class.module-highlight--active]="hoveredPrecipitation !== null">{{ getTotalPrecipitation() }} mm</span>
               </div>
               <div class="precipitation-bars">
                 <div class="bar-item" *ngFor="let bar of precipitationBars; let i = index">
@@ -1114,6 +1114,13 @@ import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../m
       font-size: 1.5rem;
       font-weight: 600;
       color: var(--text-primary);
+      display: inline-block;
+      transform-origin: right center;
+      transition: transform 0.15s ease;
+    }
+
+    .module-highlight--active {
+      transform: scale(1.33);
     }
 
     .module-row {
