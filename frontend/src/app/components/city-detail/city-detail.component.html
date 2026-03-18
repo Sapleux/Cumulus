@@ -74,7 +74,30 @@
   </defs>
 </svg>
 
-<div class="city-detail-page" [style.background]="currentTheme.bgGradient">
+<!-- Loading Screen -->
+<div class="loading-screen" *ngIf="loading">
+  <div class="loading-content">
+    <div class="loading-sun-wrap">
+      <svg class="loading-rays" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+        <line x1="80" y1="4"  x2="80" y2="28" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+        <line x1="80" y1="132" x2="80" y2="156" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+        <line x1="4"  y1="80" x2="28" y2="80" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+        <line x1="132" y1="80" x2="156" y2="80" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+        <line x1="22"  y1="22"  x2="39"  y2="39"  stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+        <line x1="121" y1="121" x2="138" y2="138" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+        <line x1="138" y1="22"  x2="121" y2="39"  stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+        <line x1="39"  y1="121" x2="22"  y2="138" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+      </svg>
+      <svg class="loading-sun" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="36" fill="white" opacity="0.95"/>
+        <circle cx="40" cy="40" r="28" fill="#fde68a"/>
+      </svg>
+    </div>
+    <p class="loading-text">Chargement des données météo…</p>
+  </div>
+</div>
+
+<div class="city-detail-page" [style.background]="currentTheme.bgGradient" *ngIf="!loading">
   <!-- Weather Background (behind content) -->
   <div class="weather-background">
     <!-- Clear Sky -->
@@ -169,8 +192,21 @@
     </div>
   </div>
 
+  <!-- Error State -->
+  <div class="error-state" *ngIf="error">
+    <div class="error-content">
+      <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4M12 16h.01"/>
+      </svg>
+      <h2>Données météo introuvables</h2>
+      <p>Aucune donnée météorologique n'a pu être récupérée pour les coordonnées <strong>{{ city.name }}</strong>.</p>
+      <button class="error-back-btn" (click)="router.navigate(['/'])">Retour à l'accueil</button>
+    </div>
+  </div>
+
   <!-- Main Content -->
-  <div class="container">
+  <div class="container" *ngIf="!error">
     <div class="detail-grid">
       <!-- Left Column -->
       <div class="left-column">
