@@ -1,0 +1,47 @@
+:host {
+}
+
+.chat-shell {
+  z-index: 12;
+  position: sticky;
+  bottom: 5px;
+  right: 5px;
+  width: 20rem;
+}
+
+.chat-list {
+  max-height: 20rem;
+}
+
+.chat-bubble {
+}
+
+.chat-bubble.mine {
+}
+
+.meta {
+}
+
+.author {
+}
+
+.text {
+}
+
+.chat-input-bar {
+}
+
+.chat-input-bar input {
+}
+
+.chat-input-bar input::placeholder {
+}
+
+.chat-input-bar button {
+}
+
+.chat-input-bar button:disabled {
+}
+
+.sr-only {
+}

@@ -1,0 +1,30 @@
+<div class="chat-shell">
+    <div class="chat-list">
+        <div
+                class="chat-bubble"
+                *ngFor="let m of messages"
+                [class.mine]="m.mine"
+        >
+            <div class="meta">
+                <span class="author">{{ m.author }}</span>
+                <span class="time">{{ m.time }}</span>
+            </div>
+            <p class="text">{{ m.text }}</p>
+        </div>
+    </div>
+
+    <form class="chat-input-bar" (ngSubmit)="sendMessage()">
+        <input
+                type="text"
+                name="draft"
+                [(ngModel)]="draft"
+                placeholder="Envoyer un message..."
+                autocomplete="off"
+                [maxLength]="100"
+                required
+        />
+        <button type="submit" [disabled]="!draft.trim()">
+            <span class="sr-only">Envoyer</span>
+        </button>
+    </form>
+</div>
