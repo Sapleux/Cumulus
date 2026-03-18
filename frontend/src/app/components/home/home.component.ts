@@ -642,8 +642,8 @@ export class HomeComponent implements OnInit {
 
   favoriteCities = [
     {
-      name: 'Nice',
-      country: 'France',
+      name: 'Ensoleille',
+      country: 'Theme: Ciel degagé',
       temperature: 28,
       icon: '☀️',
       condition: 'Ciel dégagé',
@@ -655,8 +655,8 @@ export class HomeComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.ClearSky
     },
     {
-      name: 'Paris',
-      country: 'France',
+      name: 'Nuageux',
+      country: 'Theme: Partiellement nuageux',
       temperature: 22,
       icon: '⛅',
       condition: 'Partiellement nuageux',
@@ -668,8 +668,8 @@ export class HomeComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.MainlyClear
     },
     {
-      name: 'Londres',
-      country: 'Royaume-Uni',
+      name: 'Brouillard',
+      country: 'Theme: Brouillard',
       temperature: 15,
       icon: '🌫️',
       condition: 'Brouillard épais',
@@ -681,8 +681,8 @@ export class HomeComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.Fog
     },
     {
-      name: 'Brest',
-      country: 'France',
+      name: 'Bruine',
+      country: 'Theme: Bruine',
       temperature: 16,
       icon: '🌦️',
       condition: 'Bruine légère',
@@ -694,8 +694,8 @@ export class HomeComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.Drizzle
     },
     {
-      name: 'Lille',
-      country: 'France',
+      name: 'Pluvieux',
+      country: 'Theme: Pluie',
       temperature: 12,
       icon: '🌧️',
       condition: 'Pluie modérée',
@@ -707,8 +707,8 @@ export class HomeComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.Rain
     },
     {
-      name: 'Chamonix',
-      country: 'France',
+      name: 'Neige',
+      country: 'Theme: Neige',
       temperature: -2,
       icon: '❄️',
       condition: 'Chutes de neige',
@@ -720,8 +720,8 @@ export class HomeComponent implements OnInit {
       weatherCode: WeatherInterpretationCode.Snow
     },
     {
-      name: 'Toulouse',
-      country: 'France',
+      name: 'Orageux',
+      country: 'Theme: Orage',
       temperature: 18,
       icon: '⛈️',
       condition: 'Orage violent',
@@ -738,9 +738,9 @@ export class HomeComponent implements OnInit {
     public authService: AuthService,
     private apiService: ApiService,
     private router: Router
-  ) {}
+  ) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   nextSlide(): void {
     if (this.currentSlide < this.favoriteCities.length - 1) {
