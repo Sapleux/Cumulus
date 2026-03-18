@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../models/weather.model';
 import { WeatherService, WeatherIntrepretationCode, DayCharts } from '../../services/weather.service';
+import { MapService } from '../../services/map.service';
 import { forkJoin } from 'rxjs';
 import { DAY_NAMES, FAKE_CITIES, FakeCityData } from './city-detail.data';
 
@@ -48,7 +49,8 @@ export class CityDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     public router: Router,
-    private weatherService: WeatherService
+    private weatherService: WeatherService,
+    private mapService: MapService
   ) { }
 
   ngOnInit(): void {
@@ -89,9 +91,13 @@ export class CityDetailComponent implements OnInit {
       timelineOver: this.weatherService.getWICTimelineOver(coords.lat, coords.lon, today),
       weekly: this.weatherService.getSummaryOfNextDays(coords.lat, coords.lon),
       charts: this.weatherService.getDayCharts(coords.lat, coords.lon, today),
+      geo: this.mapService.reverseGeocode(coords.lat, coords.lon),
     }).subscribe({
-      next: ({ wicTimeline, timelineOver, weekly, charts }) => {
-        const cityName = this.city.name;
+      next: ({ wicTimeline, timelineOver, weekly, charts, geo }) => {
+        const geoName = geo.features?.[0]?.properties?.city
+          ?? geo.features?.[0]?.properties?.formatted
+          ?? this.city.name;
+        const cityName = geoName;
         const currentHour = today.getHours();
         const serviceWic = wicTimeline[currentHour] ?? WeatherIntrepretationCode.ClearSky;
         this.weatherCode = serviceWic as unknown as WeatherInterpretationCode;
