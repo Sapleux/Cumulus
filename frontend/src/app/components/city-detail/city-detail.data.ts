@@ -1,15 +1,5 @@
 import { WeatherInterpretationCode } from '../../models/weather.model';
 
-export const CITY_COORDS: { [name: string]: { lat: number; lon: number } } = {
-  'Nice':     { lat: 43.7102, lon:  7.2620 },
-  'Paris':    { lat: 48.8566, lon:  2.3522 },
-  'Londres':  { lat: 51.5074, lon: -0.1278 },
-  'Brest':    { lat: 48.3904, lon: -4.4861 },
-  'Lille':    { lat: 50.6292, lon:  3.0573 },
-  'Chamonix': { lat: 45.9237, lon:  6.8694 },
-  'Toulouse': { lat: 43.6047, lon:  1.4442 },
-};
-
 export interface FakeCityData {
   weatherCode: WeatherInterpretationCode;
   temperature: number;

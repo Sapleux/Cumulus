@@ -10,5 +10,6 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'city/:name', component: CityDetailComponent, canActivate: [authGuard] },
+  { path: 'city/:lat/:lon', component: CityDetailComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];

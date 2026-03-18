@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../models/weather.model';
 import { WeatherService, WeatherIntrepretationCode, DayCharts } from '../../services/weather.service';
 import { forkJoin } from 'rxjs';
-import { CITY_COORDS, DAY_NAMES, FAKE_CITIES, FakeCityData } from './city-detail.data';
+import { DAY_NAMES, FAKE_CITIES, FakeCityData } from './city-detail.data';
 
 @Component({
   selector: 'app-city-detail',
@@ -15,6 +15,7 @@ import { CITY_COORDS, DAY_NAMES, FAKE_CITIES, FakeCityData } from './city-detail
 })
 export class CityDetailComponent implements OnInit {
   city: any = { name: '' };
+  private coords: { lat: number; lon: number } | null = null;
   hoveredHour: any = null;
   selectedDay: string | null = null;
   selectedDayIndex = 0;
@@ -25,6 +26,7 @@ export class CityDetailComponent implements OnInit {
   weatherCode: WeatherInterpretationCode = WeatherInterpretationCode.ClearSky;
   tooltipPosition = { top: 0, left: 0 };
   loading = true;
+  error = false;
 
   hourlyForecast: any[] = [];
   weeklyForecast: { name: string; icon: string; tempMin: number; tempMax: number; date: Date }[] = [];
@@ -45,21 +47,41 @@ export class CityDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    public router: Router,
     private weatherService: WeatherService
   ) { }
 
   ngOnInit(): void {
-    const cityName = this.route.snapshot.paramMap.get('name') || 'Belfort';
-    this.city = { name: cityName };
+    const params = this.route.snapshot.paramMap;
+    const latParam = params.get('lat');
+    const lonParam = params.get('lon');
+    const nameParam = params.get('name');
 
-    const fakeData = FAKE_CITIES[cityName];
-    if (fakeData) {
-      this.loadFakeCity(cityName, fakeData);
+    // Route /city/:name → villes fictives uniquement
+    if (nameParam) {
+      this.city = { name: nameParam };
+      const fakeData = FAKE_CITIES[nameParam];
+      if (fakeData) {
+        this.loadFakeCity(nameParam, fakeData);
+        return;
+      }
+    }
+
+    // Route /city/:lat/:lon
+    if (latParam && lonParam) {
+      const lat = parseFloat(latParam);
+      const lon = parseFloat(lonParam);
+      this.coords = { lat, lon };
+      this.city = { name: `${lat.toFixed(4)}, ${lon.toFixed(4)}` };
+    }
+
+    if (!this.coords) {
+      this.loading = false;
+      this.error = true;
       return;
     }
 
-    const coords = CITY_COORDS[cityName] ?? CITY_COORDS['Nice'];
+    const coords = this.coords;
     const today = new Date();
 
     forkJoin({
@@ -69,6 +91,7 @@ export class CityDetailComponent implements OnInit {
       charts: this.weatherService.getDayCharts(coords.lat, coords.lon, today),
     }).subscribe({
       next: ({ wicTimeline, timelineOver, weekly, charts }) => {
+        const cityName = this.city.name;
         const currentHour = today.getHours();
         const serviceWic = wicTimeline[currentHour] ?? WeatherIntrepretationCode.ClearSky;
         this.weatherCode = serviceWic as unknown as WeatherInterpretationCode;
@@ -110,7 +133,7 @@ export class CityDetailComponent implements OnInit {
 
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: () => { this.loading = false; this.error = true; }
     });
   }
 
@@ -170,8 +193,8 @@ export class CityDetailComponent implements OnInit {
 
     if (FAKE_CITIES[this.city.name]) return;
 
-    const coords = CITY_COORDS[this.city.name] ?? CITY_COORDS['Nice'];
-    this.weatherService.getDayCharts(coords.lat, coords.lon, day.date as Date).subscribe(charts => {
+    if (!this.coords) return;
+    this.weatherService.getDayCharts(this.coords.lat, this.coords.lon, day.date as Date).subscribe(charts => {
       this.dayCharts = charts;
       this.sunrise = this.formatTime(charts.sunRise);
       this.sunset = this.formatTime(charts.sunSet);

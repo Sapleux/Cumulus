@@ -145,7 +145,7 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
             <div class="carousel-wrapper">
               <div class="carousel-track" [style.transform]="'translateX(-' + currentSlide * 100 + '%)'">
                 <div class="carousel-slide" *ngFor="let city of favoriteCities">
-                  <div class="city-card-large" (click)="goToCityDetail(city.name)" style="cursor: pointer;">
+                  <div class="city-card-large" (click)="goToCityDetail(city)" style="cursor: pointer;">
                     <div class="city-header">
                       <div>
                         <h3 class="city-name">{{ city.name }}</h3>
@@ -758,8 +758,12 @@ export class HomeComponent implements OnInit {
     this.currentSlide = index;
   }
 
-  goToCityDetail(cityName: string): void {
-    this.router.navigate(['/city', cityName]);
+  goToCityDetail(city: any): void {
+    if (city.coords) {
+      this.router.navigate(['/city', city.coords.lat, city.coords.lon]);
+    } else {
+      this.router.navigate(['/city', city.name]);
+    }
   }
 
   toggleFavorite(event: Event, city: any): void {
