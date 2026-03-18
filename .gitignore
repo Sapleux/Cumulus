@@ -60,3 +60,6 @@ replay_pid*
 backend/target/
 *.vscode/*
 *app.db*
+
+#API Call 
+http/
