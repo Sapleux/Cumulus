@@ -1,4 +1,4 @@
-<!-- Research bar -->
+<!-- Search bar -->
 <div class="map-search">
   <div class="search-box">
     <input
@@ -11,7 +11,15 @@
     <button class="search-btn" (click)="searchCity()">Rechercher</button>
     <button class="locate-btn" (click)="locateUser()">📍 Me localiser</button>
     <button class="clear-btn" (click)="clearSelection()" *ngIf="selectedCity || city">✕</button>
+
     <div class="loader" *ngIf="loadingLocation">Localisation en cours...</div>
+
+    <!-- Geolocation errors -->
+    <div class="error-msg" *ngIf="geoError">⚠️ {{ geoError }}</div>
+
+    <!-- Search/autocomplete API errors -->
+    <div class="error-msg" *ngIf="searchError">⚠️ {{ searchError }}</div>
+
     <ul *ngIf="suggestions.length" class="suggestions">
       <li *ngFor="let place of suggestions" (click)="selectCity(place)">
         {{ place.properties.formatted }}
@@ -20,50 +28,35 @@
   </div>
 </div>
 
-<!-- Map -->
-<div #map class="map-container"></div>
+<!-- Map + rain canvas wrapper-->
+<div class="map-container-wrapper">
+  <div #map class="map-container"></div>
+  <canvas
+    #rainCanvas
+    class="rain-canvas"
+    [class.visible]="showRainCanvas"
+  ></canvas>
+</div>
 
-<!-- Toggle for wheather's layers -->
+<!-- Weather layer toggles -->
 <div class="weather-toggle-bar">
   <span class="toggle-label">Couches météo</span>
-
-  <button
-    class="toggle-btn"
-    [class.active]="activeWeatherLayer === 'temp_new'"
-    (click)="toggleWeatherLayer('temp_new')"
-  >
-    <span class="toggle-icon">🌡️</span>
-    <span>Température</span>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === null" (click)="toggleWeatherLayer(null)">
+    <span class="toggle-icon">🗺️</span><span>Aucun</span>
+  </button>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'temp_new'" (click)="toggleWeatherLayer('temp_new')">
+    <span class="toggle-icon">🌡️</span><span>Température</span>
+  </button>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'wind_new'" (click)="toggleWeatherLayer('wind_new')">
+    <span class="toggle-icon">💨</span><span>Vent</span>
+  </button>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'precipitation_new'" (click)="toggleWeatherLayer('precipitation_new')">
+    <span class="toggle-icon">🌧️</span><span>Précipitations</span>
+  </button>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'clouds_new'" (click)="toggleWeatherLayer('clouds_new')">
+    <span class="toggle-icon">☁️</span><span>Nuages</span>
   </button>
 
-  <button
-    class="toggle-btn"
-    [class.active]="activeWeatherLayer === 'wind_new'"
-    (click)="toggleWeatherLayer('wind_new')"
-  >
-    <span class="toggle-icon">💨</span>
-    <span>Vent</span>
-  </button>
-
-  <button
-    class="toggle-btn"
-    [class.active]="activeWeatherLayer === 'precipitation_new'"
-    (click)="toggleWeatherLayer('precipitation_new')"
-  >
-    <span class="toggle-icon">🌧️</span>
-    <span>Précipitations</span>
-  </button>
-
-  <button
-    class="toggle-btn"
-    [class.active]="activeWeatherLayer === 'clouds_new'"
-    (click)="toggleWeatherLayer('clouds_new')"
-  >
-    <span class="toggle-icon">☁️</span>
-    <span>Nuages</span>
-  </button>
-
-  <!-- Legend -->
   <div class="legend" *ngIf="activeWeatherLayer">
     <div class="legend-gradient" [ngClass]="activeWeatherLayer"></div>
     <div class="legend-labels" *ngIf="activeWeatherLayer === 'temp_new'">
@@ -81,8 +74,7 @@
   </div>
 </div>
 
-
-<!-- Informational bloc -->
+<!-- Selected location info panel -->
 <div class="map-info-panel" *ngIf="selectedLat !== null || isLoadingReverse">
   <div class="info-loading" *ngIf="isLoadingReverse">
     <span class="spinner"></span> Recherche de l'emplacement...
