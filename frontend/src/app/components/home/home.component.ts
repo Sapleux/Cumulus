@@ -160,7 +160,7 @@ import { WeatherInterpretationCode } from '../../models/weather.model';
                     <div class="weather-main-display">
                       <div class="temperature-display">{{ city.temperature }}°</div>
                       <svg class="weather-icon-display" viewBox="0 0 24 24">
-                        <use [attr.href]="'#' + getIconId(city.icon)"></use>
+                        <use [attr.href]="'#' + city.icon"></use>
                       </svg>
                     </div>
 
@@ -659,7 +659,7 @@ export class HomeComponent implements OnInit {
       name: 'Ensoleille',
       country: 'Theme: Ciel degagé',
       temperature: 28,
-      icon: '☀️',
+      icon: 'icon-sun',
       condition: 'Ciel dégagé',
       humidity: 45,
       wind: 8,
@@ -672,7 +672,7 @@ export class HomeComponent implements OnInit {
       name: 'Nuageux',
       country: 'Theme: Partiellement nuageux',
       temperature: 22,
-      icon: '⛅',
+      icon: 'icon-partly-cloudy',
       condition: 'Partiellement nuageux',
       humidity: 60,
       wind: 12,
@@ -685,7 +685,7 @@ export class HomeComponent implements OnInit {
       name: 'Brouillard',
       country: 'Theme: Brouillard',
       temperature: 15,
-      icon: '🌫️',
+      icon: 'icon-fog',
       condition: 'Brouillard épais',
       humidity: 90,
       wind: 5,
@@ -698,7 +698,7 @@ export class HomeComponent implements OnInit {
       name: 'Bruine',
       country: 'Theme: Bruine',
       temperature: 16,
-      icon: '🌦️',
+      icon: 'icon-drizzle',
       condition: 'Bruine légère',
       humidity: 80,
       wind: 18,
@@ -711,7 +711,7 @@ export class HomeComponent implements OnInit {
       name: 'Pluvieux',
       country: 'Theme: Pluie',
       temperature: 12,
-      icon: '🌧️',
+      icon: 'icon-rain',
       condition: 'Pluie modérée',
       humidity: 85,
       wind: 22,
@@ -724,7 +724,7 @@ export class HomeComponent implements OnInit {
       name: 'Neige',
       country: 'Theme: Neige',
       temperature: -2,
-      icon: '❄️',
+      icon: 'icon-snow',
       condition: 'Chutes de neige',
       humidity: 75,
       wind: 15,
@@ -737,7 +737,7 @@ export class HomeComponent implements OnInit {
       name: 'Orageux',
       country: 'Theme: Orage',
       temperature: 18,
-      icon: '⛈️',
+      icon: 'icon-thunderstorm',
       condition: 'Orage violent',
       humidity: 88,
       wind: 35,
@@ -784,20 +784,5 @@ export class HomeComponent implements OnInit {
     event.stopPropagation();
     // Logic to toggle favorite will be added later
     console.log('Toggle favorite for', city.name);
-  }
-
-  getIconId(iconText: string): string {
-    const iconMap: { [key: string]: string } = {
-      '☀️': 'icon-sun',
-      '⛅': 'icon-partly-cloudy',
-      '☁️': 'icon-cloud',
-      '🌧️': 'icon-rain',
-      '🌦️': 'icon-drizzle',
-      '❄️': 'icon-snow',
-      '⛈️': 'icon-thunderstorm',
-      '🌫️': 'icon-fog',
-      '🌥️': 'icon-cloud'
-    };
-    return iconMap[iconText] || 'icon-sun';
   }
 }

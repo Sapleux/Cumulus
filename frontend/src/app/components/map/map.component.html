@@ -1,13 +1,8 @@
 <!-- Search bar -->
 <div class="map-search">
   <div class="search-box">
-    <input
-      type="text"
-      placeholder="Rechercher une ville..."
-      [(ngModel)]="city"
-      (input)="autocomplete()"
-      (keyup.enter)="searchCity()"
-    />
+    <input type="text" placeholder="Rechercher une ville..." [(ngModel)]="city" (input)="autocomplete()"
+      (keyup.enter)="searchCity()" />
     <button class="search-btn" (click)="searchCity()">Rechercher</button>
     <button class="locate-btn" (click)="locateUser()">📍 Me localiser</button>
     <button class="clear-btn" (click)="clearSelection()" *ngIf="selectedCity || city">✕</button>
@@ -31,11 +26,7 @@
 <!-- Map + rain canvas wrapper-->
 <div class="map-container-wrapper">
   <div #map class="map-container"></div>
-  <canvas
-    #rainCanvas
-    class="rain-canvas"
-    [class.visible]="showRainCanvas"
-  ></canvas>
+  <canvas #rainCanvas class="rain-canvas" [class.visible]="showRainCanvas"></canvas>
 </div>
 
 <!-- Weather layer toggles -->
@@ -44,17 +35,21 @@
   <button class="toggle-btn" [class.active]="activeWeatherLayer === null" (click)="toggleWeatherLayer(null)">
     <span class="toggle-icon">🗺️</span><span>Aucun</span>
   </button>
-  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'temp_new'" (click)="toggleWeatherLayer('temp_new')">
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'temp_new'"
+    (click)="toggleWeatherLayer('temp_new')">
     <span class="toggle-icon">🌡️</span><span>Température</span>
   </button>
-  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'wind_new'" (click)="toggleWeatherLayer('wind_new')">
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'wind_new'"
+    (click)="toggleWeatherLayer('wind_new')">
     <span class="toggle-icon">💨</span><span>Vent</span>
   </button>
-  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'precipitation_new'" (click)="toggleWeatherLayer('precipitation_new')">
-    <span class="toggle-icon">🌧️</span><span>Précipitations</span>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'precipitation_new'"
+    (click)="toggleWeatherLayer('precipitation_new')">
+    <span class="toggle-icon">icon-rain</span><span>Précipitations</span>
   </button>
-  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'clouds_new'" (click)="toggleWeatherLayer('clouds_new')">
-    <span class="toggle-icon">☁️</span><span>Nuages</span>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'clouds_new'"
+    (click)="toggleWeatherLayer('clouds_new')">
+    <span class="toggle-icon">icon-cloud</span><span>Nuages</span>
   </button>
 
   <div class="legend" *ngIf="activeWeatherLayer">

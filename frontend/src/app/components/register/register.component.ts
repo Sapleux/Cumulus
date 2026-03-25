@@ -15,7 +15,7 @@ import { AuthService } from '../../services/auth.service';
           <div class="col-md-5">
             <div class="card p-4 p-md-5">
               <div class="text-center mb-4">
-                <div class="weather-icon-large mb-3">☁️</div>
+                <div class="weather-icon-large mb-3">icon-cloud</div>
                 <h2 class="fw-bold">Rejoignez Cumulus</h2>
                 <p class="text-secondary">Créez votre compte et suivez la météo partout dans le monde</p>
               </div>
@@ -121,7 +121,7 @@ export class RegisterComponent {
   errorMessage = '';
   successMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   onSubmit(): void {
     this.loading = true;
