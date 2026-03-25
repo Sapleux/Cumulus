@@ -177,13 +177,14 @@ export class CityDetailComponent implements OnInit {
     this.sunset = fakeData.sunset;
     this.fakeDaylightDuration = this.computeFakeDaylightDuration(fakeData.sunrise, fakeData.sunset);
 
-    this.buildCharts({
+    this.dayCharts = {
       UVs: fakeData.uvs,
       windSpeeds: fakeData.winds,
       precipitations: fakeData.precipitations,
       sunRise: new Date(),
       sunSet: new Date(),
-    } as any);
+    } as any;
+    this.buildCharts(this.dayCharts!);
 
     if (this.weeklyForecast.length > 0) {
       this.selectedDay = this.weeklyForecast[0].name;
@@ -200,7 +201,21 @@ export class CityDetailComponent implements OnInit {
     if (FAKE_CITIES[this.city.name]) return;
 
     if (!this.coords) return;
-    this.weatherService.getDayCharts(this.coords.lat, this.coords.lon, day.date as Date).subscribe(charts => {
+    const coords = this.coords;
+    const date = day.date as Date;
+
+    forkJoin({
+      wicTimeline: this.weatherService.getWICTimeline(coords.lat, coords.lon, date, date),
+      timelineOver: this.weatherService.getWICTimelineOver(coords.lat, coords.lon, date),
+      charts: this.weatherService.getDayCharts(coords.lat, coords.lon, date),
+    }).subscribe(({ wicTimeline, timelineOver, charts }) => {
+      this.hourlyForecast = timelineOver.map((h, i) => ({
+        time: `${i.toString().padStart(2, '0')}h`,
+        icon: this.wicToIcon(wicTimeline[i]),
+        temp: Math.round(h.temperature),
+        sunMinutes: Math.round(h.sunDuration / 60),
+        wind: Math.round(h.windSpeed),
+      }));
       this.dayCharts = charts;
       this.sunrise = this.formatTime(charts.sunRise);
       this.sunset = this.formatTime(charts.sunSet);
@@ -265,14 +280,14 @@ export class CityDetailComponent implements OnInit {
 
   private wicToIcon(wic: WeatherIntrepretationCode): string {
     switch (wic) {
-      case WeatherIntrepretationCode.ClearSky: return '☀️';
-      case WeatherIntrepretationCode.MainlyClear: return '⛅';
-      case WeatherIntrepretationCode.Fog: return '🌫️';
-      case WeatherIntrepretationCode.Drizzle: return '🌦️';
-      case WeatherIntrepretationCode.Rain: return '🌧️';
-      case WeatherIntrepretationCode.Snow: return '❄️';
-      case WeatherIntrepretationCode.Thunderstorm: return '⛈️';
-      default: return '☀️';
+      case WeatherIntrepretationCode.ClearSky: return 'icon-sun';
+      case WeatherIntrepretationCode.MainlyClear: return 'icon-partly-cloudy';
+      case WeatherIntrepretationCode.Fog: return 'icon-fog';
+      case WeatherIntrepretationCode.Drizzle: return 'icon-drizzle';
+      case WeatherIntrepretationCode.Rain: return 'icon-rain';
+      case WeatherIntrepretationCode.Snow: return 'icon-snow';
+      case WeatherIntrepretationCode.Thunderstorm: return 'icon-thunderstorm';
+      default: return 'icon-sun';
     }
   }
 
@@ -439,25 +454,4 @@ export class CityDetailComponent implements OnInit {
   resetUVHover(): void { this.hoveredUV = null; }
   resetWindHover(): void { this.hoveredWind = null; }
   resetPrecipitationHover(): void { this.hoveredPrecipitation = null; }
-
-  getIconId(icon: string): string {
-    if (icon.startsWith('icon-')) return icon;
-    const iconMap: { [key: string]: string } = {
-      '☀️': 'icon-sun',
-      '🌙': 'icon-moon',
-      '⛅': 'icon-partly-cloudy',
-      '☁️': 'icon-cloud',
-      '🌧️': 'icon-rain',
-      '🌦️': 'icon-drizzle',
-      '❄️': 'icon-snow',
-      '⛈️': 'icon-thunderstorm',
-      '🌫️': 'icon-fog',
-      '🌅': 'icon-sunrise',
-      '🌇': 'icon-sunset',
-      '🌆': 'icon-dusk',
-      '🌃': 'icon-dusk',
-      '🌥️': 'icon-cloud',
-    };
-    return iconMap[icon] || 'icon-sun';
-  }
 }

@@ -1173,6 +1173,15 @@
     max-width: 100%;
 }
 
+.hourly-panel-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 0.5rem;
+}
+
 .hourly-scroll-container {
     display: flex;
     gap: 0.5rem;
