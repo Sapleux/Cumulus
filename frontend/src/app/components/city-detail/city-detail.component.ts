@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WeatherInterpretationCode, WEATHER_THEMES, WeatherTheme } from '../../models/weather.model';
 import { WeatherService, WeatherIntrepretationCode, DayCharts } from '../../services/weather.service';
+import { MapService } from '../../services/map.service';
 import { forkJoin } from 'rxjs';
-import { CITY_COORDS, DAY_NAMES, FAKE_CITIES, FakeCityData } from './city-detail.data';
+import { DAY_NAMES, FAKE_CITIES, FakeCityData } from './city-detail.data';
 
 @Component({
   selector: 'app-city-detail',
@@ -15,6 +16,7 @@ import { CITY_COORDS, DAY_NAMES, FAKE_CITIES, FakeCityData } from './city-detail
 })
 export class CityDetailComponent implements OnInit {
   city: any = { name: '' };
+  private coords: { lat: number; lon: number } | null = null;
   hoveredHour: any = null;
   selectedDay: string | null = null;
   selectedDayIndex = 0;
@@ -25,6 +27,7 @@ export class CityDetailComponent implements OnInit {
   weatherCode: WeatherInterpretationCode = WeatherInterpretationCode.ClearSky;
   tooltipPosition = { top: 0, left: 0 };
   loading = true;
+  error = false;
 
   hourlyForecast: any[] = [];
   weeklyForecast: { name: string; icon: string; tempMin: number; tempMax: number; date: Date }[] = [];
@@ -45,21 +48,42 @@ export class CityDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
-    private weatherService: WeatherService
+    public router: Router,
+    private weatherService: WeatherService,
+    private mapService: MapService
   ) { }
 
   ngOnInit(): void {
-    const cityName = this.route.snapshot.paramMap.get('name') || 'Belfort';
-    this.city = { name: cityName };
+    const params = this.route.snapshot.paramMap;
+    const latParam = params.get('lat');
+    const lonParam = params.get('lon');
+    const nameParam = params.get('name');
 
-    const fakeData = FAKE_CITIES[cityName];
-    if (fakeData) {
-      this.loadFakeCity(cityName, fakeData);
+    // Route /city/:name → villes fictives uniquement
+    if (nameParam) {
+      this.city = { name: nameParam };
+      const fakeData = FAKE_CITIES[nameParam];
+      if (fakeData) {
+        this.loadFakeCity(nameParam, fakeData);
+        return;
+      }
+    }
+
+    // Route /city/:lat/:lon
+    if (latParam && lonParam) {
+      const lat = parseFloat(latParam);
+      const lon = parseFloat(lonParam);
+      this.coords = { lat, lon };
+      this.city = { name: `${lat.toFixed(4)}, ${lon.toFixed(4)}` };
+    }
+
+    if (!this.coords) {
+      this.loading = false;
+      this.error = true;
       return;
     }
 
-    const coords = CITY_COORDS[cityName] ?? CITY_COORDS['Nice'];
+    const coords = this.coords;
     const today = new Date();
 
     forkJoin({
@@ -67,8 +91,13 @@ export class CityDetailComponent implements OnInit {
       timelineOver: this.weatherService.getWICTimelineOver(coords.lat, coords.lon, today),
       weekly: this.weatherService.getSummaryOfNextDays(coords.lat, coords.lon),
       charts: this.weatherService.getDayCharts(coords.lat, coords.lon, today),
+      geo: this.mapService.reverseGeocode(coords.lat, coords.lon),
     }).subscribe({
-      next: ({ wicTimeline, timelineOver, weekly, charts }) => {
+      next: ({ wicTimeline, timelineOver, weekly, charts, geo }) => {
+        const geoName = geo.features?.[0]?.properties?.city
+          ?? geo.features?.[0]?.properties?.formatted
+          ?? this.city.name;
+        const cityName = geoName;
         const currentHour = today.getHours();
         const serviceWic = wicTimeline[currentHour] ?? WeatherIntrepretationCode.ClearSky;
         this.weatherCode = serviceWic as unknown as WeatherInterpretationCode;
@@ -110,7 +139,7 @@ export class CityDetailComponent implements OnInit {
 
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: () => { this.loading = false; this.error = true; }
     });
   }
 
@@ -148,13 +177,14 @@ export class CityDetailComponent implements OnInit {
     this.sunset = fakeData.sunset;
     this.fakeDaylightDuration = this.computeFakeDaylightDuration(fakeData.sunrise, fakeData.sunset);
 
-    this.buildCharts({
+    this.dayCharts = {
       UVs: fakeData.uvs,
       windSpeeds: fakeData.winds,
       precipitations: fakeData.precipitations,
       sunRise: new Date(),
       sunSet: new Date(),
-    } as any);
+    } as any;
+    this.buildCharts(this.dayCharts!);
 
     if (this.weeklyForecast.length > 0) {
       this.selectedDay = this.weeklyForecast[0].name;
@@ -170,8 +200,22 @@ export class CityDetailComponent implements OnInit {
 
     if (FAKE_CITIES[this.city.name]) return;
 
-    const coords = CITY_COORDS[this.city.name] ?? CITY_COORDS['Nice'];
-    this.weatherService.getDayCharts(coords.lat, coords.lon, day.date as Date).subscribe(charts => {
+    if (!this.coords) return;
+    const coords = this.coords;
+    const date = day.date as Date;
+
+    forkJoin({
+      wicTimeline: this.weatherService.getWICTimeline(coords.lat, coords.lon, date, date),
+      timelineOver: this.weatherService.getWICTimelineOver(coords.lat, coords.lon, date),
+      charts: this.weatherService.getDayCharts(coords.lat, coords.lon, date),
+    }).subscribe(({ wicTimeline, timelineOver, charts }) => {
+      this.hourlyForecast = timelineOver.map((h, i) => ({
+        time: `${i.toString().padStart(2, '0')}h`,
+        icon: this.wicToIcon(wicTimeline[i]),
+        temp: Math.round(h.temperature),
+        sunMinutes: Math.round(h.sunDuration / 60),
+        wind: Math.round(h.windSpeed),
+      }));
       this.dayCharts = charts;
       this.sunrise = this.formatTime(charts.sunRise);
       this.sunset = this.formatTime(charts.sunSet);
@@ -236,14 +280,14 @@ export class CityDetailComponent implements OnInit {
 
   private wicToIcon(wic: WeatherIntrepretationCode): string {
     switch (wic) {
-      case WeatherIntrepretationCode.ClearSky: return '☀️';
-      case WeatherIntrepretationCode.MainlyClear: return '⛅';
-      case WeatherIntrepretationCode.Fog: return '🌫️';
-      case WeatherIntrepretationCode.Drizzle: return '🌦️';
-      case WeatherIntrepretationCode.Rain: return '🌧️';
-      case WeatherIntrepretationCode.Snow: return '❄️';
-      case WeatherIntrepretationCode.Thunderstorm: return '⛈️';
-      default: return '☀️';
+      case WeatherIntrepretationCode.ClearSky: return 'icon-sun';
+      case WeatherIntrepretationCode.MainlyClear: return 'icon-partly-cloudy';
+      case WeatherIntrepretationCode.Fog: return 'icon-fog';
+      case WeatherIntrepretationCode.Drizzle: return 'icon-drizzle';
+      case WeatherIntrepretationCode.Rain: return 'icon-rain';
+      case WeatherIntrepretationCode.Snow: return 'icon-snow';
+      case WeatherIntrepretationCode.Thunderstorm: return 'icon-thunderstorm';
+      default: return 'icon-sun';
     }
   }
 
@@ -410,25 +454,4 @@ export class CityDetailComponent implements OnInit {
   resetUVHover(): void { this.hoveredUV = null; }
   resetWindHover(): void { this.hoveredWind = null; }
   resetPrecipitationHover(): void { this.hoveredPrecipitation = null; }
-
-  getIconId(icon: string): string {
-    if (icon.startsWith('icon-')) return icon;
-    const iconMap: { [key: string]: string } = {
-      '☀️': 'icon-sun',
-      '🌙': 'icon-moon',
-      '⛅': 'icon-partly-cloudy',
-      '☁️': 'icon-cloud',
-      '🌧️': 'icon-rain',
-      '🌦️': 'icon-drizzle',
-      '❄️': 'icon-snow',
-      '⛈️': 'icon-thunderstorm',
-      '🌫️': 'icon-fog',
-      '🌅': 'icon-sunrise',
-      '🌇': 'icon-sunset',
-      '🌆': 'icon-dusk',
-      '🌃': 'icon-dusk',
-      '🌥️': 'icon-cloud',
-    };
-    return iconMap[icon] || 'icon-sun';
-  }
 }

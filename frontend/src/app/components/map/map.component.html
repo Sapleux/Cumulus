@@ -1,0 +1,110 @@
+<!-- Search bar -->
+<div class="map-search">
+  <div class="search-box">
+    <input type="text" placeholder="Rechercher une ville..." [(ngModel)]="city" (input)="autocomplete()"
+      (keyup.enter)="searchCity()" />
+    <button class="search-btn" (click)="searchCity()">Rechercher</button>
+    <button class="locate-btn" (click)="locateUser()">📍 Me localiser</button>
+    <button class="clear-btn" (click)="clearSelection()" *ngIf="selectedCity || city">✕</button>
+
+    <div class="loader" *ngIf="loadingLocation">Localisation en cours...</div>
+
+    <!-- Geolocation errors -->
+    <div class="error-msg" *ngIf="geoError">⚠️ {{ geoError }}</div>
+
+    <!-- Search/autocomplete API errors -->
+    <div class="error-msg" *ngIf="searchError">⚠️ {{ searchError }}</div>
+
+    <ul *ngIf="suggestions.length" class="suggestions">
+      <li *ngFor="let place of suggestions" (click)="selectCity(place)">
+        {{ place.properties.formatted }}
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Map + rain canvas wrapper-->
+<div class="map-container-wrapper">
+  <div #map class="map-container"></div>
+  <canvas #rainCanvas class="rain-canvas" [class.visible]="showRainCanvas"></canvas>
+</div>
+
+<!-- Weather layer toggles -->
+<div class="weather-toggle-bar">
+  <span class="toggle-label">Couches météo</span>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === null" (click)="toggleWeatherLayer(null)">
+    <span class="toggle-icon">🗺️</span><span>Aucun</span>
+  </button>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'temp_new'"
+    (click)="toggleWeatherLayer('temp_new')">
+    <span class="toggle-icon">🌡️</span><span>Température</span>
+  </button>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'wind_new'"
+    (click)="toggleWeatherLayer('wind_new')">
+    <span class="toggle-icon">💨</span><span>Vent</span>
+  </button>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'precipitation_new'"
+    (click)="toggleWeatherLayer('precipitation_new')">
+    <span class="toggle-icon">icon-rain</span><span>Précipitations</span>
+  </button>
+  <button class="toggle-btn" [class.active]="activeWeatherLayer === 'clouds_new'"
+    (click)="toggleWeatherLayer('clouds_new')">
+    <span class="toggle-icon">icon-cloud</span><span>Nuages</span>
+  </button>
+
+  <div class="legend" *ngIf="activeWeatherLayer">
+    <div class="legend-gradient" [ngClass]="activeWeatherLayer"></div>
+    <div class="legend-labels" *ngIf="activeWeatherLayer === 'temp_new'">
+      <span>-40°C</span><span>0°C</span><span>+40°C</span>
+    </div>
+    <div class="legend-labels" *ngIf="activeWeatherLayer === 'wind_new'">
+      <span>0</span><span>50</span><span>100+ km/h</span>
+    </div>
+    <div class="legend-labels" *ngIf="activeWeatherLayer === 'precipitation_new'">
+      <span>0</span><span>25</span><span>50+ mm</span>
+    </div>
+    <div class="legend-labels" *ngIf="activeWeatherLayer === 'clouds_new'">
+      <span>0%</span><span>50%</span><span>100%</span>
+    </div>
+  </div>
+</div>
+
+<!-- Selected location info panel -->
+<div class="map-info-panel" *ngIf="selectedLat !== null || isLoadingReverse">
+  <div class="info-loading" *ngIf="isLoadingReverse">
+    <span class="spinner"></span> Recherche de l'emplacement...
+  </div>
+  <div class="info-content" *ngIf="!isLoadingReverse && selectedLat !== null">
+    <div class="info-item">
+      <span class="info-icon">📍</span>
+      <div>
+        <span class="info-label">Ville</span>
+        <span class="info-value">{{ selectedCity || '—' }}</span>
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-item">
+      <span class="info-icon">🌐</span>
+      <div>
+        <span class="info-label">Latitude</span>
+        <span class="info-value">{{ selectedLat }}°</span>
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-item">
+      <span class="info-icon">🌐</span>
+      <div>
+        <span class="info-label">Longitude</span>
+        <span class="info-value">{{ selectedLon }}°</span>
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-item">
+      <span class="info-icon">🌡️</span>
+      <div>
+        <span class="info-label">Météo</span>
+        <button class="btn-weather">Voir la météo</button>
+      </div>
+    </div>
+  </div>
+</div>
