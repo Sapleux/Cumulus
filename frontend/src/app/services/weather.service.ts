@@ -33,6 +33,15 @@ export interface DayCharts {
   precipitations: number[];
 }
 
+export interface CurrentWeather {
+  temperature: number;
+  condition: WeatherIntrepretationCode;
+  humidity: number;
+  wind: number;
+  cloudCover: number;
+  pressure: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -122,6 +131,22 @@ export class WeatherService {
     );
   }
 
+  public getCurrentWeather(latitude: Number, longitude: Number): Observable<CurrentWeather> {
+    return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,cloud_cover,surface_pressure&forecast_days=1`).pipe(
+      map((data: any) => {
+        const current = data.current;
+        return {
+          temperature: current.temperature_2m,
+          condition: this.interpretWeatherCode(current.weather_code),
+          humidity: current.relative_humidity_2m,
+          wind: current.wind_speed_10m,
+          cloudCover: current.cloud_cover,
+          pressure: current.surface_pressure
+        };
+      })
+    );
+  }
+
   private interpretWeatherCode(code: number): WeatherIntrepretationCode {
     switch (code) {
       case 0:
@@ -157,5 +182,45 @@ export class WeatherService {
         return WeatherIntrepretationCode.Thunderstorm;
     }
     return WeatherIntrepretationCode.ClearSky; 
+  }
+
+  public WICToString(wic: WeatherIntrepretationCode): string {
+    switch (wic) {
+      case WeatherIntrepretationCode.ClearSky:
+        return 'Ensoleillé';
+      case WeatherIntrepretationCode.MainlyClear:
+        return 'Nuageux';
+      case WeatherIntrepretationCode.Fog:
+        return 'Brouillard';
+      case WeatherIntrepretationCode.Drizzle:
+        return 'Bruine';
+      case WeatherIntrepretationCode.Rain:
+        return 'Pluvieux';
+      case WeatherIntrepretationCode.Snow:
+        return 'Neige';
+      case WeatherIntrepretationCode.Thunderstorm:
+        return 'Orage';
+    }
+    return 'Météo inconnue';
+  }
+
+  public getIconForWIC(wic: WeatherIntrepretationCode): string {
+    switch (wic) {
+      case WeatherIntrepretationCode.ClearSky:
+        return 'icon-sun';
+      case WeatherIntrepretationCode.MainlyClear:
+        return 'icon-partly-cloudy';
+      case WeatherIntrepretationCode.Fog:
+        return 'icon-fog';
+      case WeatherIntrepretationCode.Drizzle:
+        return 'icon-drizzle';
+      case WeatherIntrepretationCode.Rain:
+        return 'icon-rain';
+      case WeatherIntrepretationCode.Snow:
+        return 'icon-snow';
+      case WeatherIntrepretationCode.Thunderstorm:
+        return 'icon-thunderstorm';
+    }
+    return 'icon-unknown';
   }
 }
