@@ -29,7 +29,7 @@ export const MOCK_FAVORITE_CITIES: FavoriteCity[] = [
     pressure: 1015,
     lastUpdate: '5 min',
     weatherCode: WeatherInterpretationCode.MainlyClear,
-    coords: { lat: 50.629250, lon: 3.057256 },
+    coords: { lat: 50.62925, lon: 3.057256 },
     source: 'mock'
   },
   {

@@ -23,6 +23,15 @@ export class HomeComponent implements OnInit {
   favoriteCities: FavoriteCity[] = [];
 
   private readonly coordinatePrecision = 6;
+  private readonly mockCityRoutes: Record<string, string> = {
+    Ensoleille: '/city/Ensoleille',
+    Nuageux: '/city/Nuageux',
+    Brouillard: '/city/Brouillard',
+    Bruine: '/city/Bruine',
+    Pluvieux: '/city/Pluvieux',
+    Neige: '/city/Neige',
+    Orageux: '/city/Orageux'
+  };
   private likedLocationKeys = new Set<string>();
   private readonly mockLocationKeys = new Set(
     MOCK_FAVORITE_CITIES.map(city => this.buildLocationKey(city.coords.lat, city.coords.lon))
@@ -70,6 +79,11 @@ export class HomeComponent implements OnInit {
   }
 
   goToCityDetail(city: FavoriteCity): void {
+    if (city.source === 'mock') {
+      this.navigateToMockCity(city.name);
+      return;
+    }
+
     if (this.hasValidCoords(city)) {
       const coords = this.normalizeCoordinates(city.coords);
       this.router.navigate(['/city', coords.lat, coords.lon]);
@@ -77,6 +91,16 @@ export class HomeComponent implements OnInit {
     }
 
     this.router.navigate(['/city', city.name]);
+  }
+
+  private navigateToMockCity(cityName: string): void {
+    const hardcodedRoute = this.mockCityRoutes[cityName];
+    if (hardcodedRoute) {
+      this.router.navigateByUrl(hardcodedRoute);
+      return;
+    }
+
+    this.router.navigate(['/city', cityName]);
   }
 
   isCityLiked(city: FavoriteCity): boolean {
