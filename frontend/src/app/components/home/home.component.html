@@ -133,13 +133,13 @@
         <div class="carousel-wrapper">
           <div class="carousel-track" [style.transform]="'translateX(-' + currentSlide * 100 + '%)'">
             <div class="carousel-slide" *ngFor="let city of favoriteCities">
-              <div class="city-card-large" (click)="goToCityDetail(city.name)" style="cursor: pointer;">
+              <div class="city-card-large" (click)="goToCurrentCityDetail()" style="cursor: pointer;">
                 <div class="city-header">
                   <div>
                     <h3 class="city-name">{{ city.name }}</h3>
                     <p class="city-country">{{ city.country }}</p>
                   </div>
-                  <button class="btn-favorite active" (click)="toggleFavorite($event, city)">
+                  <button class="btn-favorite" [class.active]="isCityLiked(city)" (click)="toggleFavorite($event, city)">
                     <span>⭐</span>
                   </button>
                 </div>
@@ -147,7 +147,7 @@
                 <div class="weather-main-display">
                   <div class="temperature-display">{{ city.temperature }}°</div>
                   <svg class="weather-icon-display" viewBox="0 0 24 24">
-                    <use [attr.href]="'#' + getIconId(city.icon)"></use>
+                    <use [attr.href]="'#' + city.icon"></use>
                   </svg>
                 </div>
 
@@ -172,8 +172,8 @@
                     <svg class="stat-icon" viewBox="0 0 24 24">
                       <use href="#icon-eye"></use>
                     </svg>
-                    <span class="stat-label">Visibilité</span>
-                    <span class="stat-value">{{ city.visibility }} km</span>
+                    <span class="stat-label">Couverture nuageuse</span>
+                    <span class="stat-value">{{ city.cloudCover }}%</span>
                   </div>
                   <div class="stat-card">
                     <svg class="stat-icon" viewBox="0 0 24 24">

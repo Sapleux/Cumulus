@@ -24,7 +24,7 @@ export class LikedLocationsService {
   private apiUrl = environment.apiUrl + '/liked-locations';
   private likedLocationsSignal = signal<LikedLocation[]>([]);
   private likedLocationsSubject = new BehaviorSubject<LikedLocation[]>([]);
-  public likedLocations$ = this.likedLocationsSubject.asObservable();
+  public likedLocations = this.likedLocationsSubject.asObservable();
 
   constructor(private http: HttpClient) {
     this.loadLikedLocations();

@@ -11,10 +11,10 @@ public class LikedLocationRequest {
     @NotNull()
     @DecimalMin(value = "-90.0")
     @DecimalMax(value = "90.0")
-    private Float latitude;
+    private Double latitude;
 
     @NotNull()
     @DecimalMin(value = "-180.0")
     @DecimalMax(value = "180.0")
-    private Float longitude;
+    private Double longitude;
 }

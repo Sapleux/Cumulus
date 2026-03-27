@@ -59,4 +59,23 @@ public class LikedLocationController {
 
 		return ResponseEntity.ok(likedLocationRepository.findAllByUserId(user.getId()));
 	}
+
+	@PostMapping("/remove")
+	public ResponseEntity<Void> removeLikedLocation(
+			@Valid @RequestBody LikedLocationRequest request,
+			Authentication authentication) {
+		User user = userRepository.findByUsername(authentication.getName())
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+		LikedLocation likedLocation = likedLocationRepository.findByUserIdAndLatitudeAndLongitude(
+				user.getId(), request.getLatitude(), request.getLongitude());
+
+		if (likedLocation == null) {
+			System.out.println("Liked location not found for user: " + user.getId() + " with latitude: " + request.getLatitude() + " and longitude: " + request.getLongitude());
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Liked location not found");
+		}
+
+		likedLocationRepository.delete(likedLocation);
+		return ResponseEntity.noContent().build();
+	}
 }

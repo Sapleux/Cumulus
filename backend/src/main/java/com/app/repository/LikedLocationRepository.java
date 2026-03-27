@@ -10,4 +10,5 @@ import com.app.model.LikedLocation;
 public interface LikedLocationRepository extends JpaRepository<LikedLocation, Long>{
     Optional<LikedLocation> findById(long id);
     List<LikedLocation> findAllByUserId(Long userId);
+    LikedLocation findByUserIdAndLatitudeAndLongitude(Long userId, Double latitude, Double longitude);
 }
