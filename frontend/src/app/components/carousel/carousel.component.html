@@ -1,0 +1,94 @@
+<div class="carousel-header">
+  <div>
+    <h2 class="fw-bold mb-1">Mes villes favorites</h2>
+    <p class="text-secondary mb-0">Suivez la météo de vos villes préférées en un coup d'œil</p>
+  </div>
+</div>
+
+<div class="empty-state" *ngIf="favoriteCities.length === 0">
+  <div class="empty-icon">🌍</div>
+  <h5>Aucune ville favorite</h5>
+  <p class="text-secondary">Ajoutez des villes pour suivre leur météo en temps réel</p>
+  <button class="btn btn-primary mt-3">Ajouter ma première ville</button>
+</div>
+
+<div class="carousel-container" *ngIf="favoriteCities.length > 0">
+  <button class="carousel-btn prev" (click)="previousSlide()" [disabled]="currentSlide === 0">
+    <span>‹</span>
+  </button>
+
+  <div class="carousel-wrapper">
+    <div class="carousel-track" [style.transform]="'translateX(-' + currentSlide * 100 + '%)'">
+      <div class="carousel-slide" *ngFor="let city of favoriteCities">
+        <div class="city-card-large" (click)="goToCurrentCityDetail()" style="cursor: pointer;">
+          <div class="city-header">
+            <div>
+              <h3 class="city-name">{{ city.name }}</h3>
+              <p class="city-country">{{ city.country }}</p>
+            </div>
+            <button class="btn-favorite" [class.active]="isCityLiked(city)" (click)="toggleFavorite($event, city)">
+              <span>⭐</span>
+            </button>
+          </div>
+
+          <div class="weather-main-display">
+            <div class="temperature-display">{{ city.temperature }}°</div>
+            <svg class="weather-icon-display" viewBox="0 0 24 24">
+              <use [attr.href]="'#' + city.icon"></use>
+            </svg>
+          </div>
+
+          <div class="weather-condition-large">{{ city.condition }}</div>
+
+          <div class="weather-stats-grid">
+            <div class="stat-card">
+              <svg class="stat-icon" viewBox="0 0 24 24">
+                <use href="#icon-droplet"></use>
+              </svg>
+              <span class="stat-label">Humidité</span>
+              <span class="stat-value">{{ city.humidity }}%</span>
+            </div>
+            <div class="stat-card">
+              <svg class="stat-icon" viewBox="0 0 24 24">
+                <use href="#icon-wind"></use>
+              </svg>
+              <span class="stat-label">Vent</span>
+              <span class="stat-value">{{ city.wind }} km/h</span>
+            </div>
+            <div class="stat-card">
+              <svg class="stat-icon" viewBox="0 0 24 24">
+                <use href="#icon-eye"></use>
+              </svg>
+              <span class="stat-label">Couverture nuageuse</span>
+              <span class="stat-value">{{ city.cloudCover }}%</span>
+            </div>
+            <div class="stat-card">
+              <svg class="stat-icon" viewBox="0 0 24 24">
+                <use href="#icon-gauge"></use>
+              </svg>
+              <span class="stat-label">Pression</span>
+              <span class="stat-value">{{ city.pressure }} hPa</span>
+            </div>
+          </div>
+
+          <div class="city-footer-large">
+            <span class="update-time">Mis à jour il y a {{ city.lastUpdate }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="carousel-btn next" (click)="nextSlide()" [disabled]="currentSlide === favoriteCities.length - 1">
+    <span>›</span>
+  </button>
+
+  <div class="carousel-indicators">
+    <button
+      *ngFor="let city of favoriteCities; let i = index"
+      class="indicator"
+      [class.active]="i === currentSlide"
+      (click)="goToSlide(i)"
+    ></button>
+  </div>
+</div>

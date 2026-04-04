@@ -3,6 +3,7 @@
 .map-search {
   padding: 20px;
   background: var(--bg-card);
+  border-radius: 24px 24px 0 0;
 }
 
 .search-box {
@@ -299,6 +300,22 @@
   background: var(--primary-dark);
 }
 
+.btn-add {
+  margin-top: 2px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-add:hover {
+  background: var(--primary-dark);
+}
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {

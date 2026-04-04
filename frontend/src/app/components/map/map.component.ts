@@ -53,6 +53,8 @@ import {
   GeoapifyFeature,
   GeoapifyResponse,
 } from './map.types';
+import { LikedLocationsService } from 'src/app/services/liked-locations.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-map',
@@ -81,11 +83,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   showRainCanvas = false;
   geoError: string | null = null;
   searchError: string | null = null;
-  // #endregion
+  // #endregi
 
   // #region Private state
   private readonly mapService = inject(MapService);
+  private readonly likedLocationsService = inject(LikedLocationsService);
   private readonly markerSource = new VectorSource();
+  private readonly router = inject(Router);
   private weatherLayers: Partial<Record<WeatherLayerType, TileLayer<XYZ>>> = {};
   private mapReady = false;
   private rainAnimationId: number | null = null;
@@ -417,4 +421,31 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.stopRain();
   }
   // #endregion
+
+  viewWeather(): void {
+    if (this.selectedLat === null || this.selectedLon === null) {
+      return;
+    } else {
+      this.router.navigate(['/city', this.selectedLat, this.selectedLon]);
+    }
+    
+  }
+
+  addToFavorites(): void {
+    if (this.selectedLat === null || this.selectedLon === null) {
+      return;
+    }
+
+    this.likedLocationsService.addLikedLocation({
+      latitude: this.selectedLat,
+      longitude: this.selectedLon,
+    }).subscribe({
+      next: () => {
+        this.searchError = null;
+      },
+      error: () => {
+        this.searchError = 'Impossible d\'ajouter cette location aux favoris. Veuillez réessayer.';
+      },
+    });
+  }
 }

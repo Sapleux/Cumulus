@@ -103,8 +103,15 @@
       <span class="info-icon">🌡️</span>
       <div>
         <span class="info-label">Météo</span>
-        <button class="btn-weather">Voir la météo</button>
+        <button class="btn-weather" (click)="viewWeather()">Voir la météo</button>
       </div>
     </div>
+    <div class="info-divider"></div>
+    <div class="info-item">
+      <span class="info-icon">🗺️</span>
+      <div>
+        <span class="info-label">Actions</span>
+        <button class="btn-add" (click)="addToFavorites()">Ajouter aux favoris</button> 
+      </div>
   </div>
 </div>
