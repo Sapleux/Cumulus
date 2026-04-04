@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, Subscription } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { WeatherInterpretationCode } from '../../models/weather.model';
 import { LikedLocationsService } from 'src/app/services/liked-locations.service';
@@ -17,11 +17,12 @@ import { CityCoordinates, FavoriteCity } from '../home/home.models';
   templateUrl: './carousel.component.html',
   styleUrl: './carousel.component.css'
 })
-export class CarouselComponent implements OnInit {
+export class CarouselComponent implements OnInit, OnDestroy {
   currentSlide = 0;
   favoriteCities: FavoriteCity[] = [];
 
   private readonly coordinatePrecision = 6;
+  private readonly mockFavoriteCities = [...MOCK_FAVORITE_CITIES].sort(() => Math.random() - 0.5);
   private readonly mockCityRoutes: Record<string, string> = {
     Ensoleille: '/city/Ensoleille',
     Nuageux: '/city/Nuageux',
@@ -35,6 +36,7 @@ export class CarouselComponent implements OnInit {
   private readonly mockLocationKeys = new Set(
     MOCK_FAVORITE_CITIES.map(city => this.buildLocationKey(city.coords.lat, city.coords.lon))
   );
+  private readonly likedLocationsSubscription = new Subscription();
 
   constructor(
     private readonly weatherService: WeatherService,
@@ -44,9 +46,17 @@ export class CarouselComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.favoriteCities = [...MOCK_FAVORITE_CITIES].sort(() => Math.random() - 0.5);
-    this.fetchFavoriteCities();
+    this.favoriteCities = [...this.mockFavoriteCities];
+    this.likedLocationsSubscription.add(
+      this.likedLocationsService.likedLocations.subscribe(locations => {
+        void this.syncFavoriteCities(locations);
+      })
+    );
     this.currentSlide = 0;
+  }
+
+  ngOnDestroy(): void {
+    this.likedLocationsSubscription.unsubscribe();
   }
 
   nextSlide(): void {
@@ -145,62 +155,71 @@ export class CarouselComponent implements OnInit {
     });
   }
 
-  fetchFavoriteCities(): void {
-    this.likedLocationsService.getLikedLocations().subscribe(locations => {
-      this.likedLocationKeys = new Set(
-        locations.map(loc => this.buildLocationKey(loc.latitude, loc.longitude))
-      );
+  private syncFavoriteCities(locations: { latitude: number; longitude: number }[]): void {
+    this.likedLocationKeys = new Set(
+      locations.map(loc => this.buildLocationKey(loc.latitude, loc.longitude))
+    );
 
-      const existingKeys = new Set(
-        this.favoriteCities.map(city => this.buildLocationKey(city.coords.lat, city.coords.lon))
-      );
-
-      const newLocations = locations.filter(
-        loc => !existingKeys.has(this.buildLocationKey(loc.latitude, loc.longitude))
-      );
-
-      if (newLocations.length === 0) {
-        return;
+    this.favoriteCities = this.favoriteCities.filter(city => {
+      if (city.source !== 'liked') {
+        return true;
       }
 
-      const cityRequests = newLocations.map(loc => {
-        const normalizedCoords = this.normalizeCoordinates({ lat: loc.latitude, lon: loc.longitude });
-        return forkJoin({
-          cityName: this.mapService.reverseGeocode(normalizedCoords.lat, normalizedCoords.lon).pipe(
-            map(response =>
-              response.features.length > 0 ? response.features[0].properties.city || 'Unknown' : 'Unknown'
-            ),
-            catchError(() => of('Unknown'))
+      return this.likedLocationKeys.has(this.buildLocationKey(city.coords.lat, city.coords.lon));
+    });
+
+    const existingKeys = new Set(
+      this.favoriteCities.map(city => this.buildLocationKey(city.coords.lat, city.coords.lon))
+    );
+
+    const newLocations = locations.filter(loc => {
+      const locationKey = this.buildLocationKey(loc.latitude, loc.longitude);
+      return !existingKeys.has(locationKey);
+    });
+
+    if (newLocations.length === 0) {
+      this.ensureCurrentSlideInRange();
+      return;
+    }
+
+    const cityRequests = newLocations.map(loc => {
+      const normalizedCoords = this.normalizeCoordinates({ lat: loc.latitude, lon: loc.longitude });
+      return forkJoin({
+        cityName: this.mapService.reverseGeocode(normalizedCoords.lat, normalizedCoords.lon).pipe(
+          map(response =>
+            response.features.length > 0 ? response.features[0].properties.city || 'Unknown' : 'Unknown'
           ),
-          weather: this.weatherService.getCurrentWeather(normalizedCoords.lat, normalizedCoords.lon).pipe(
-            catchError(() => of(null))
-          )
-        }).pipe(
-          map(({ cityName, weather }) => {
-            const weatherCondition = weather?.condition;
+          catchError(() => of('Unknown'))
+        ),
+        weather: this.weatherService.getCurrentWeather(normalizedCoords.lat, normalizedCoords.lon).pipe(
+          catchError(() => of(null))
+        )
+      }).pipe(
+        map(({ cityName, weather }) => {
+          const weatherCondition = weather?.condition;
 
-            return {
-              name: cityName,
-              country: 'Favorite City',
-              temperature: weather?.temperature ?? 0,
-              icon: weatherCondition != null ? this.weatherService.getIconForWIC(weatherCondition) : 'icon-cloud',
-              condition: weatherCondition != null ? this.weatherService.WICToString(weatherCondition) : 'Unknown',
-              humidity: weather?.humidity ?? 0,
-              wind: weather?.wind ?? 0,
-              cloudCover: weather?.cloudCover ?? 0,
-              pressure: weather?.pressure ?? 0,
-              lastUpdate: 'just now',
-              weatherCode: weatherCondition ?? WeatherInterpretationCode.ClearSky,
-              coords: normalizedCoords,
-              source: 'liked'
-            } as FavoriteCity;
-          })
-        );
-      });
+          return {
+            name: cityName,
+            country: 'Favorite City',
+            temperature: weather?.temperature ?? 0,
+            icon: weatherCondition != null ? this.weatherService.getIconForWIC(weatherCondition) : 'icon-cloud',
+            condition: weatherCondition != null ? this.weatherService.WICToString(weatherCondition) : 'Unknown',
+            humidity: weather?.humidity ?? 0,
+            wind: weather?.wind ?? 0,
+            cloudCover: weather?.cloudCover ?? 0,
+            pressure: weather?.pressure ?? 0,
+            lastUpdate: 'just now',
+            weatherCode: weatherCondition ?? WeatherInterpretationCode.ClearSky,
+            coords: normalizedCoords,
+            source: 'liked'
+          } as FavoriteCity;
+        })
+      );
+    });
 
-      forkJoin(cityRequests).subscribe(cities => {
-        this.favoriteCities = [...this.favoriteCities, ...cities];
-      });
+    forkJoin(cityRequests).subscribe(cities => {
+      this.favoriteCities = [...this.favoriteCities, ...cities];
+      this.ensureCurrentSlideInRange();
     });
   }
 
@@ -237,5 +256,11 @@ export class CarouselComponent implements OnInit {
     const normalizedLat = this.normalizeCoordinate(lat);
     const normalizedLon = this.normalizeCoordinate(lon);
     return `${normalizedLat},${normalizedLon}`;
+  }
+
+  private ensureCurrentSlideInRange(): void {
+    if (this.currentSlide >= this.favoriteCities.length) {
+      this.currentSlide = Math.max(0, this.favoriteCities.length - 1);
+    }
   }
 }
