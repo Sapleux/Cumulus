@@ -46,7 +46,6 @@ import { ChatComponent } from "./components/chat/chat.component";
     </nav>
 
     <router-outlet></router-outlet>
-    <app-chat></app-chat>
   `
 })
 export class AppComponent {

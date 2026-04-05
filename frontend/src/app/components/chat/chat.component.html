@@ -1,4 +1,13 @@
-<div class="chat-shell">
+<button class="chat-toggle" type="button" *ngIf="!isOpen" (click)="toggleChat()" aria-label="Ouvrir le chat">
+    Chat
+</button>
+
+<div class="chat-shell" *ngIf="isOpen">
+    <div class="chat-header">
+        <span class="chat-title">Chat</span>
+        <button class="chat-minimize" type="button" (click)="toggleChat()" aria-label="Reduire le chat">-</button>
+    </div>
+
     <div class="chat-list">
         <div
                 class="chat-bubble"
@@ -24,7 +33,7 @@
                 required
         />
         <button type="submit" [disabled]="!draft.trim()">
-            <span class="sr-only">Envoyer</span>
+            Envoyer
         </button>
     </form>
 </div>
