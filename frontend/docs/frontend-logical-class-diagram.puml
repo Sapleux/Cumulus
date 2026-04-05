@@ -1,0 +1,207 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide empty methods
+hide empty fields
+
+title Cumulus Frontend - Logical Class Diagram
+
+package "shell" {
+  class AppComponent {
+    +logout(): void
+  }
+}
+
+package "components" {
+  class HomeComponent
+  class LoginComponent {
+    -username: String
+    -password: String
+    -loading: boolean
+    -errorMessage: String
+    +onSubmit(): void
+  }
+
+  class RegisterComponent {
+    -username: String
+    -email: String
+    -password: String
+    -loading: boolean
+    -errorMessage: String
+    -successMessage: String
+    +onSubmit(): void
+  }
+
+  class MapComponent {
+    -city: String
+    -suggestions: GeoapifyFeature[]
+    -selectedCity: String
+    -selectedLat: number
+    -selectedLon: number
+    -activeWeatherLayer: WeatherLayerType
+    +searchCity(): void
+    +autocomplete(): void
+    +selectCity(place: GeoapifyFeature): void
+    +locateUser(): void
+    +toggleWeatherLayer(type: WeatherLayerType): void
+  }
+
+  class CityDetailComponent {
+    -city: any
+    -coords: CityCoordinates
+    -loading: boolean
+    -error: boolean
+    -weatherCode: WeatherInterpretationCode
+    +selectDay(day: any): void
+    +buildCharts(charts: DayCharts): void
+  }
+
+  class CarouselComponent {
+    -currentSlide: number
+    -favoriteCities: FavoriteCity[]
+    +nextSlide(): void
+    +previousSlide(): void
+    +goToSlide(index: number): void
+    +goToCityDetail(city: FavoriteCity): void
+    +toggleFavorite(event: Event, city: FavoriteCity): void
+  }
+}
+
+package "services" {
+  class ApiService {
+    +getPublicContent(): Observable<MessageResponse>
+    +getProtectedContent(): Observable<MessageResponse>
+  }
+
+  class AuthService {
+    -userSignal: AuthResponse
+    +login(request: LoginRequest): Observable<AuthResponse>
+    +register(request: RegisterRequest): Observable<any>
+    +logout(): void
+    +getToken(): String
+    +isLoggedIn(): boolean
+    +getUser(): AuthResponse
+  }
+
+  class LikedLocationsService {
+    -likedLocationsSignal: LikedLocation[]
+    +addLikedLocation(request: LikedLocationRequest): Observable<LikedLocation>
+    +getLikedLocations(): Observable<LikedLocation[]>
+    +removeLikedLocation(request: LikedLocationRequest): Observable<void>
+    +getAllLikedLocations(): LikedLocation[]
+    +isLocationLiked(latitude: number, longitude: number): boolean
+    +clearCache(): void
+  }
+
+  class MapService {
+    +searchCity(city: String): Observable<GeoapifyResponse>
+    +reverseGeocode(lat: number, lon: number): Observable<GeoapifyResponse>
+  }
+
+  class WeatherService {
+    +getWICTimeline(latitude: Number, longitude: Number, startDate: Date, endDate: Date): Observable<WeatherInterpretationCode[]>
+    +getWICTimelineOver(latitude: Number, longitude: Number, day: Date): Observable<WICTimelineOver[]>
+    +getSummaryOfNextDays(latitude: Number, longitude: Number): Observable<DaySummary[]>
+    +getDayCharts(latitude: Number, longitude: Number, day: Date): Observable<DayCharts>
+    +getCurrentWeather(latitude: Number, longitude: Number): Observable<CurrentWeather>
+    +WICToString(wic: WeatherInterpretationCode): String
+    +getIconForWIC(wic: WeatherInterpretationCode): String
+  }
+}
+
+package "routing" {
+  class authGuard
+  class authInterceptor
+}
+
+package "models" {
+  enum WeatherInterpretationCode {
+    ClearSky
+    MainlyClear
+    Fog
+    Drizzle
+    Rain
+    Snow
+    Thunderstorm
+  }
+
+  enum WeatherLayerType {
+    temp_new
+    wind_new
+    precipitation_new
+    clouds_new
+  }
+
+  class WeatherTheme
+  class CityCoordinates
+  class FavoriteCity
+  class GeoapifyResponse
+  class GeoapifyFeature
+  class GeoapifyProperties
+  class GeoapifyGeometry
+  class DaySummary
+  class WICTimelineOver
+  class DayCharts
+  class CurrentWeather
+  class RainDrop
+}
+
+package "shared dto" {
+  class AuthResponse
+  class LoginRequest
+  class RegisterRequest
+  class LikedLocationRequest
+  class LikedLocation
+  class MessageResponse
+}
+
+' Shell and component relationships
+AppComponent ..> AuthService
+HomeComponent ..> AuthService
+HomeComponent ..> MapComponent
+HomeComponent ..> CarouselComponent
+LoginComponent ..> AuthService
+RegisterComponent ..> AuthService
+MapComponent ..> MapService
+MapComponent ..> LikedLocationsService
+MapComponent ..> GeoapifyResponse
+MapComponent ..> GeoapifyFeature
+MapComponent ..> WeatherLayerType
+CityDetailComponent ..> WeatherService
+CityDetailComponent ..> MapService
+CityDetailComponent ..> WeatherInterpretationCode
+CityDetailComponent ..> WeatherTheme
+CityDetailComponent ..> DayCharts
+CarouselComponent ..> LikedLocationsService
+CarouselComponent ..> MapService
+CarouselComponent ..> WeatherService
+CarouselComponent ..> FavoriteCity
+CarouselComponent ..> CityCoordinates
+
+' Service relationships
+AuthService ..> AuthResponse
+AuthService ..> LoginRequest
+AuthService ..> RegisterRequest
+LikedLocationsService ..> LikedLocation
+LikedLocationsService ..> LikedLocationRequest
+MapService ..> GeoapifyResponse
+WeatherService ..> WeatherInterpretationCode
+WeatherService ..> DaySummary
+WeatherService ..> WICTimelineOver
+WeatherService ..> DayCharts
+WeatherService ..> CurrentWeather
+
+' Routing and access control
+authGuard ..> AuthService
+authInterceptor ..> AuthService
+
+' Model associations
+FavoriteCity ..> CityCoordinates
+FavoriteCity ..> WeatherInterpretationCode
+GeoapifyResponse ..> GeoapifyFeature
+GeoapifyFeature ..> GeoapifyGeometry
+GeoapifyFeature ..> GeoapifyProperties
+DaySummary ..> WeatherInterpretationCode
+CurrentWeather ..> WeatherInterpretationCode
+
+@enduml

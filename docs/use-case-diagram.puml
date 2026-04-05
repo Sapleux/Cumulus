@@ -1,0 +1,45 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+title Cumulus - Use Case Diagram
+
+actor Visitor
+actor User
+actor "Geoapify API" as Geoapify
+actor "Open-Meteo API" as OpenMeteo
+
+rectangle Cumulus {
+  usecase "Browse home page" as UC1
+  usecase "Register account" as UC2
+  usecase "Log in" as UC3
+  usecase "View city weather" as UC4
+  usecase "Search a city" as UC5
+  usecase "Use map" as UC6
+  usecase "View liked locations" as UC7
+  usecase "Add liked location" as UC8
+  usecase "Remove liked location" as UC9
+  usecase "Check current weather" as UC10
+  usecase "View forecast charts" as UC11
+}
+
+Visitor --> UC1
+Visitor --> UC2
+Visitor --> UC3
+Visitor --> UC5
+Visitor --> UC6
+
+User --> UC4
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC11
+
+UC4 .> UC10 : <<include>>
+UC4 .> UC11 : <<include>>
+UC5 .> UC6 : <<include>>
+UC6 --> Geoapify
+UC10 --> OpenMeteo
+UC11 --> OpenMeteo
+
+@enduml

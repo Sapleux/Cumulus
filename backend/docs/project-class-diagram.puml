@@ -1,0 +1,139 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide empty methods
+hide empty fields
+
+title Cumulus - Logical Class Diagram
+
+package "domain" {
+  class User {
+    -id: Long
+    -username: String
+    -email: String
+    -password: String
+    -role: String
+  }
+
+  class LikedLocation {
+    -id: Long
+    -latitude: Double
+    -longitude: Double
+  }
+
+  User "1" o-- "0..*" LikedLocation : liked locations
+}
+
+package "dto" {
+  class LoginRequest {
+    -username: String
+    -password: String
+  }
+
+  class RegisterRequest {
+    -username: String
+    -email: String
+    -password: String
+  }
+
+  class LikedLocationRequest {
+    -latitude: Double
+    -longitude: Double
+  }
+
+  class AuthResponse {
+    -token: String
+    -type: String
+    -username: String
+    -email: String
+    -role: String
+  }
+
+  class MessageResponse {
+    -message: String
+  }
+}
+
+package "repository" {
+  interface UserRepository {
+    +findByUsername(username: String): User
+    +findByEmail(email: String): User
+    +existsByUsername(username: String): boolean
+    +existsByEmail(email: String): boolean
+    +save(user: User): User
+  }
+
+  interface LikedLocationRepository {
+    +findById(id: Long): LikedLocation
+    +findAllByUserId(userId: Long): List<LikedLocation>
+    +findByUserIdAndLatitudeAndLongitude(userId: Long, latitude: Double, longitude: Double): LikedLocation
+    +save(location: LikedLocation): LikedLocation
+    +delete(location: LikedLocation): void
+  }
+}
+
+package "service" {
+  interface ILikedLocationService {
+    +getLikedLocation(id: long): LikedLocation
+  }
+
+  class LikedLocationService {
+    -likedLocationRepository: LikedLocationRepository
+    +getLikedLocation(id: long): LikedLocation
+  }
+}
+
+package "controller" {
+  class AuthController {
+    -authenticationManager: AuthenticationManager
+    -userRepository: UserRepository
+    -passwordEncoder: PasswordEncoder
+    -jwtUtils: JwtUtils
+    +register(request: RegisterRequest): MessageResponse
+    +login(request: LoginRequest): AuthResponse
+    +getCurrentUser(): AuthResponse
+  }
+
+  class LikedLocationController {
+    -likedLocationRepository: LikedLocationRepository
+    -userRepository: UserRepository
+    +addLikedLocation(request: LikedLocationRequest): LikedLocation
+    +getLikedLocations(): List<LikedLocation>
+    +removeLikedLocation(request: LikedLocationRequest): void
+  }
+}
+
+package "support" {
+  class JwtUtils {
+    -jwtSecret: String
+    -jwtExpiration: long
+    +generateToken(userName: String): String
+    +extractUsername(token: String): String
+    +validateToken(token: String, userName: String): boolean
+  }
+
+  class LikedLocationNotFound
+}
+
+' Logical dependencies
+AuthController ..> UserRepository
+AuthController ..> JwtUtils
+AuthController ..> RegisterRequest
+AuthController ..> LoginRequest
+AuthController ..> AuthResponse
+AuthController ..> MessageResponse
+
+LikedLocationController ..> UserRepository
+LikedLocationController ..> LikedLocationRepository
+LikedLocationController ..> LikedLocationRequest
+LikedLocationController ..> LikedLocation
+
+LikedLocationService ..|> ILikedLocationService
+LikedLocationService ..> LikedLocationRepository
+LikedLocationService ..> LikedLocationNotFound
+
+UserRepository ..> User
+LikedLocationRepository ..> LikedLocation
+JwtUtils ..> User
+
+@enduml

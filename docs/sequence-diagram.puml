@@ -1,0 +1,74 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+title Cumulus - Frontend and Backend Interaction
+
+actor User
+participant "Frontend\nAngular App" as FE
+participant "AuthService" as AuthSvc
+participant "LikedLocationsService" as LikeSvc
+participant "MapService" as MapSvc
+participant "Backend API" as BE
+participant "AuthController" as AuthCtl
+participant "LikedLocationController" as LikeCtl
+participant "UserRepository" as UserRepo
+participant "LikedLocationRepository" as LikeRepo
+participant "JwtUtils" as Jwt
+participant "Geoapify API" as Geo
+participant "Open-Meteo API" as Weather
+
+== Login ==
+User -> FE: Enter credentials and submit
+FE -> AuthSvc: login(username, password)
+AuthSvc -> BE: POST /api/auth/login
+BE -> AuthCtl: authenticate request
+AuthCtl -> UserRepo: findByUsername(username)
+UserRepo --> AuthCtl: User
+AuthCtl -> Jwt: generateToken(userDetails)
+Jwt --> AuthCtl: JWT token
+AuthCtl --> BE: AuthResponse
+BE --> AuthSvc: AuthResponse
+AuthSvc --> FE: store token and user
+FE --> User: navigate to home
+
+== Load liked locations ==
+User -> FE: Open home page
+FE -> LikeSvc: getLikedLocations()
+LikeSvc -> BE: GET /api/liked-locations
+BE -> LikeCtl: resolve current user
+LikeCtl -> UserRepo: findByUsername(currentUser)
+UserRepo --> LikeCtl: User
+LikeCtl -> LikeRepo: findAllByUserId(userId)
+LikeRepo --> LikeCtl: liked locations
+LikeCtl --> BE: List<LikedLocation>
+BE --> LikeSvc: liked locations
+LikeSvc --> FE: update carousel state
+
+== Add liked location ==
+User -> FE: Click like on a city
+FE -> LikeSvc: addLikedLocation(latitude, longitude)
+LikeSvc -> BE: POST /api/liked-locations
+BE -> LikeCtl: create liked location
+LikeCtl -> UserRepo: findByUsername(currentUser)
+UserRepo --> LikeCtl: User
+LikeCtl -> LikeRepo: save(LikedLocation)
+LikeRepo --> LikeCtl: created liked location
+LikeCtl --> BE: Created item
+BE --> LikeSvc: created item
+LikeSvc --> FE: refresh liked locations
+
+== Search and weather data ==
+User -> FE: Search a city or open city detail
+FE -> MapSvc: searchCity(query) / reverseGeocode(lat, lon)
+MapSvc -> Geo: REST request
+Geo --> MapSvc: geo response
+MapSvc --> FE: location data
+FE -> MapSvc: reverseGeocode(lat, lon)
+MapSvc -> Geo: REST request
+Geo --> MapSvc: geo response
+MapSvc --> FE: coordinates and city name
+FE -> BE: none
+FE -> Weather: GET forecast data
+Weather --> FE: forecast response
+
+@enduml
