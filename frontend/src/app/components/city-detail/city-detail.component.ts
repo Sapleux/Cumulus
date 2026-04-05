@@ -6,11 +6,12 @@ import { WeatherService, WeatherIntrepretationCode, DayCharts } from '../../serv
 import { MapService } from '../../services/map.service';
 import { forkJoin } from 'rxjs';
 import { DAY_NAMES, FAKE_CITIES, FakeCityData } from './city-detail.data';
+import {NewsComponent} from "../news/news.component";
 
 @Component({
   selector: 'app-city-detail',
   standalone: true,
-  imports: [CommonModule],
+    imports: [CommonModule, NewsComponent],
   templateUrl: './city-detail.component.html',
   styleUrl: './city-detail.component.css',
 })

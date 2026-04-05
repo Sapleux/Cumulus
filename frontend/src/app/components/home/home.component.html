@@ -28,5 +28,7 @@
     
     <hr class="map-divider">
     <app-map></app-map>
+
+    <app-news [hasSearchBar]="true" [isCoordinates]="false" *ngIf="authService.isLoggedIn()"></app-news>
   </div>
 </section>
