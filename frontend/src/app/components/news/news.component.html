@@ -1,0 +1,71 @@
+<div class="news-page">
+    <div class="weather-background">
+        <div class="floating-clouds">
+            <div class="cloud cloud-1">☁️</div>
+            <div class="cloud cloud-2">☁️</div>
+            <div class="cloud cloud-3">☁️</div>
+        </div>
+    </div>
+
+    <div class="news-container">
+        <div class="news-shell">
+            <div class="news-header-card">
+                <div class="card-overlay"></div>
+                <div class="city-title">
+                    <h1>Actualites</h1>
+                    <p class="coordinates">
+                        {{ 'Flux Google News' }}
+                    </p>
+
+                    <div *ngIf="hasSearchBar" class="search-bar">
+                        <input
+                                class="search-input"
+                                type="text"
+                                placeholder="Rechercher des actualites..."
+                                [(ngModel)]="searchQuery"
+                                (input)="filterNews()"
+                        />
+                        <button class="search-btn" type="button" (click)="filterNews()">
+                            Rechercher
+                        </button>
+                    </div>
+
+                </div>
+
+
+                <div class="weekly-forecast-card">
+                    <div class="news-empty" *ngIf="newsList.length === 0">
+                        <h3>Aucun article</h3>
+                        <p>Aucun resultat pour cette recherche pour le moment.</p>
+                    </div>
+
+                    <a
+                            class="week-day news-item"
+                            *ngFor="let item of paginatedNewsList"
+                            [href]="item.link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                    >
+                        <span class="day-name">{{ item.title }}</span>
+                        <span class="day-icon"></span>
+                        <span class="day-temp-min">{{ 'Google News' }}</span>
+                        <span class="day-temp-max">{{ item.pubDate | date:'short' }}</span>
+                        <p class="news-description" *ngIf="item.description">{{ item.description }}</p>
+                    </a>
+
+                    <div class="pagination" *ngIf="newsList.length > pageSize">
+                        <button class="pagination-btn" (click)="goToPreviousPage()" [disabled]="currentPage === 1">
+                            Precedent
+                        </button>
+
+                        <span class="pagination-info">Page {{ currentPage }} / {{ totalPages }}</span>
+
+                        <button class="pagination-btn" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+                            Suivant
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
