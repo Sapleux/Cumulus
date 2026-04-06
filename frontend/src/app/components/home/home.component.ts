@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule, NgIf} from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { MapComponent } from "../map/map.component";
@@ -11,6 +11,14 @@ import {ChatComponent} from "../chat/chat.component";
   selector: 'app-home',
   standalone: true,
   templateUrl: './home.component.html',
+  imports: [
+    CarouselComponent,
+    MapComponent,
+    NewsComponent,
+    ChatComponent,
+    NgIf,
+    RouterLink
+  ],
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
