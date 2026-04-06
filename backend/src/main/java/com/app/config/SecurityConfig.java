@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/home/public").permitAll()
                 .requestMatchers("/api/news/rss").permitAll()
                 .requestMatchers("/error").permitAll()
+                .requestMatchers("/gs-guide-websocket/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

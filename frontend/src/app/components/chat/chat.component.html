@@ -1,0 +1,39 @@
+<button class="chat-toggle" type="button" *ngIf="!isOpen" (click)="toggleChat()" aria-label="Ouvrir le chat">
+    Chat
+</button>
+
+<div class="chat-shell" *ngIf="isOpen">
+    <div class="chat-header">
+        <span class="chat-title">Chat</span>
+        <button class="chat-minimize" type="button" (click)="toggleChat()" aria-label="Reduire le chat">-</button>
+    </div>
+
+    <div class="chat-list">
+        <div
+                class="chat-bubble"
+                *ngFor="let m of messages"
+                [class.mine]="m.mine"
+        >
+            <div class="meta">
+                <span class="author">{{ m.author }}</span>
+                <span class="time">{{ m.time }}</span>
+            </div>
+            <p class="text">{{ m.text }}</p>
+        </div>
+    </div>
+
+    <form class="chat-input-bar" (ngSubmit)="sendMessage()">
+        <input
+                type="text"
+                name="draft"
+                [(ngModel)]="draft"
+                placeholder="Envoyer un message..."
+                autocomplete="off"
+                [maxLength]="100"
+                required
+        />
+        <button type="submit" [disabled]="!draft.trim()">
+            Envoyer
+        </button>
+    </form>
+</div>

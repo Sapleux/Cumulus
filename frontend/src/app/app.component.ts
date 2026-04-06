@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
+import { ChatComponent } from "./components/chat/chat.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink],
+  imports: [CommonModule, RouterOutlet, RouterLink, ChatComponent],
   template: `
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
       <div class="container">

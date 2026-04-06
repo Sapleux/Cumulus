@@ -30,5 +30,6 @@
     <app-map></app-map>
 
     <app-news [hasSearchBar]="true" [isCoordinates]="false" *ngIf="authService.isLoggedIn()"></app-news>
+    <app-chat [localisation]="'general'"></app-chat>
   </div>
 </section>

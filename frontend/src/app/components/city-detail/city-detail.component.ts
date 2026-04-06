@@ -7,11 +7,12 @@ import { MapService } from '../../services/map.service';
 import { forkJoin } from 'rxjs';
 import { DAY_NAMES, FAKE_CITIES, FakeCityData } from './city-detail.data';
 import {NewsComponent} from "../news/news.component";
+import {ChatComponent} from "../chat/chat.component";
 
 @Component({
   selector: 'app-city-detail',
   standalone: true,
-    imports: [CommonModule, NewsComponent],
+    imports: [CommonModule, NewsComponent, ChatComponent],
   templateUrl: './city-detail.component.html',
   styleUrl: './city-detail.component.css',
 })
