@@ -47,7 +47,7 @@ export interface CurrentWeather {
 })
 export class WeatherService {
   
-  private apiUrl = "https://api.open-meteo.com/v1" 
+  private apiUrl = "/api/weather"
 
   constructor(private http: HttpClient) {}
   
@@ -61,7 +61,7 @@ export class WeatherService {
    * @returns an Observable that emits an array of WeatherIntrepretationCode values representing the weather conditions for each hour of the day
    */
   public getWICTimeline(latitude: Number, longitude: Number, startDate: Date, endDate: Date): Observable<WeatherIntrepretationCode[]> {
-    return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&hourly=weather_code&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`).pipe(
+    return this.http.get(`${this.apiUrl}?latitude=${latitude}&longitude=${longitude}&hourly=weather_code&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`).pipe(
       map((data: any) => {
         const wic: WeatherIntrepretationCode[] = [];
         const weatherCodes = data.hourly.weather_code;
@@ -74,7 +74,7 @@ export class WeatherService {
   }
 
   public getWICTimelineOver(latitude: Number, longitude: Number, day: Date): Observable<WICTimelineOver[]> {
-    return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,sunshine_duration,wind_speed_10m&start_date=${day.toISOString().split('T')[0]}&end_date=${day.toISOString().split('T')[0]}`).pipe(
+    return this.http.get(`${this.apiUrl}?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,sunshine_duration,wind_speed_10m&start_date=${day.toISOString().split('T')[0]}&end_date=${day.toISOString().split('T')[0]}`).pipe(
       map((data: any) => {
         const timeline: WICTimelineOver[] = [];
         const temperatures = data.hourly.temperature_2m;
@@ -99,7 +99,7 @@ export class WeatherService {
    * @returns an Observable that emits an array of DaySummary objects representing the weather conditions for each day of the next week.
    */
   public getSummaryOfNextDays(latitude: Number, longitude: Number): Observable<DaySummary[]> {
-    return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min,temperature_2m_max,weather_code&forecast_days=7`).pipe(
+    return this.http.get(`${this.apiUrl}?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min,temperature_2m_max,weather_code&forecast_days=7`).pipe(
       map((data: any) => {
         const dailyData = data.daily;
         const summaries: DaySummary[] = [];
@@ -116,7 +116,7 @@ export class WeatherService {
   }
 
   public getDayCharts(latitude: Number, longitude: Number, day: Date): Observable<DayCharts> {
-    return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&daily=sunrise,sunset&hourly=uv_index,wind_speed_10m,precipitation&start_date=${day.toISOString().split('T')[0]}&end_date=${day.toISOString().split('T')[0]}`).pipe(
+    return this.http.get(`${this.apiUrl}?latitude=${latitude}&longitude=${longitude}&daily=sunrise,sunset&hourly=uv_index,wind_speed_10m,precipitation&start_date=${day.toISOString().split('T')[0]}&end_date=${day.toISOString().split('T')[0]}`).pipe(
       map((data: any) => {
         const daily = data.daily;
         const hourly = data.hourly;
@@ -132,7 +132,7 @@ export class WeatherService {
   }
 
   public getCurrentWeather(latitude: Number, longitude: Number): Observable<CurrentWeather> {
-    return this.http.get(`${this.apiUrl}/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,cloud_cover,surface_pressure&forecast_days=1`).pipe(
+    return this.http.get(`${this.apiUrl}?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,cloud_cover,surface_pressure&forecast_days=1`).pipe(
       map((data: any) => {
         const current = data.current;
         return {
