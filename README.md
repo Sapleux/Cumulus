@@ -184,25 +184,14 @@ Frontend is served by Nginx inside the container.
 
 ## 3) Docker Compose
 
-`docker-compose.yml` defines both services, but currently references `frontend/Dockerfile.dev`, which is not present in the repository.
+`docker-compose.yml` defines both services
 
-You have two options:
-
-### Option A - quick fix in compose file
-Change:
-- `dockerfile: Dockerfile.dev`
-
-To:
-- `dockerfile: Dockerfile`
-
-Then run:
+You can run:
 
 ```bash
 docker compose up --build
 ```
 
-### Option B - add your own `Dockerfile.dev`
-Keep compose as-is and create that file for a hot-reload workflow.
 
 ## API Reference
 

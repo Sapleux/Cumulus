@@ -19,7 +19,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     platform: linux/amd64
     ports:
       - "4200:4200"
