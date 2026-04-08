@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     platform: linux/amd64
     ports:
-      - "4200:4200"
+      - "4200:80"
     volumes:
       - ./frontend/src:/app/src
     depends_on:
